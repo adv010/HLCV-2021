@@ -56,7 +56,7 @@ plt.plot(x, D, 'r-')
 plt.legend( ('gauss', 'gaussdx'))
 plt.show()
 
-G = G.reshape(1, G.size)
+G = G.reshape(1, G.size)		#takes G from (43,) to (1, 43), thus matching its number of dims with img.
 D = D.reshape(1, D.size)
 
 plt.figure()
