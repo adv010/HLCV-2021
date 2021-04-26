@@ -52,7 +52,27 @@ plt.show()
 
 # add your code here
 
+#rg_hist
+plt.figure()
+plt.subplot(1,2,1)
+plt.imshow(img_color)
 
+num_bins_rg = 5
+plt.subplot(1,2,2)
+hist_rgb1 = histogram_module.rg_hist(img_color.astype('double'), num_bins_rg)
+plt.bar(np.array(range(1,hist_rgb1.size+1)),hist_rgb1)
+plt.show()
+
+#dxdy_hist
+plt.figure()
+plt.subplot(1,2,1)
+plt.imshow(img_color)
+
+num_bins_dxdy = 5
+plt.subplot(1,2,2)
+hist_rgb1 = histogram_module.dxdy_hist(img_gray.astype('double'), num_bins_dxdy)
+plt.bar(np.array(range(1,hist_rgb1.size+1)),hist_rgb1)
+plt.show()
 
 ## distance functions (Question 2.c)
 
@@ -106,7 +126,7 @@ for imgidx1 in range(len(image_files1)):
           if len(hist2) == 2 and len(hist2[0]) > 1:
             hist2 = hist2[0]
 
-          D[hidx, didx] = dist_module.get_dist_by_name(hist1, hist2, distance_types[didx])
+          dist_module.get_dist_by_name(hist1, hist2, distance_types[didx])
         else:
           hist1 = histogram_module.get_hist_by_name(img1_color, num_bins_color, hist_types[hidx])
           hist2 = histogram_module.get_hist_by_name(img2_color, num_bins_color, hist_types[hidx])

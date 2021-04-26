@@ -34,15 +34,33 @@ def find_best_match(model_images, query_images, dist_type, hist_type, num_bins):
   D = np.zeros((len(model_images), len(query_images)))
 
   # your code here
+  for i in range(len(model_images)):
+    for j in range(len(query_images)):
+      D[i,j]=dist_module.get_dist_by_name(model_hists[i],query_hists[j],dist_type)
 
+  #for each query image returns the index of the closest model image
+  
+  best_match = []
+  for j in range(len(query_images)):
+    #https://www.kite.com/python/answers/how-to-find-the-numpy-array-element-closest-to-a-given-value-in-python
+    best_match.append(np.argmin(D[:,j]))
+
+  best_match = np.array(best_match)
   return best_match, D
 
 def compute_histograms(image_list, hist_type, hist_isgray, num_bins):
 
   image_hist = []
 
-  # compute hisgoram for each image and add it at the bottom of image_hist
+  # compute histogram for each image and add it at the bottom of image_hist
   # your code here
+  for i in range(len(image_list)):
+    img = np.array(Image.open(image_list[i]))
+    if(hist_isgray):
+      img = rgb2gray(img.astype('double'))
+    else:
+      img = img.astype('double')
+    image_hist.append(histogram_module.get_hist_by_name(img,num_bins,hist_type))
 
   return image_hist
 
@@ -60,6 +78,25 @@ def show_neighbors(model_images, query_images, dist_type, hist_type, num_bins):
   num_nearest = 5  # show the top-5 neighbors
 
   # your code here
+  [best_match, D] = find_best_match(model_images, query_images, dist_type, hist_type, num_bins)
+  for j in range(len(query_images)):
+    #sort the distances from min to max and take top 5 minimum 
+    sorted_query_index = np.argsort(D[:,j])
+    sorted_query_index = sorted_query_index[:num_nearest]
+    #visualization of query image and 5 neighbours 
+    plt.subplot(1,6,1)
+    plt.imshow(Image.open(query_images[j]))
+    plt.title('query image')
 
-
-
+    plt.subplot(1,6,2)
+    plt.imshow(Image.open(model_images[sorted_query_index[0]]))
+    plt.subplot(1,6,3)
+    plt.imshow(Image.open(model_images[sorted_query_index[0]]))
+    plt.subplot(1,6,4)
+    plt.imshow(Image.open(model_images[sorted_query_index[0]]))
+    plt.subplot(1,6,5)
+    plt.imshow(Image.open(model_images[sorted_query_index[0]]))
+    plt.subplot(1,6,6)
+    plt.imshow(Image.open(model_images[sorted_query_index[0]]))
+    plt.title('matches images with query image')
+    plt.show()
