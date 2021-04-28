@@ -24,15 +24,43 @@ def plot_rpc(D, plot_color):
   
   d = D.reshape(D.size)
   l = labels.reshape(labels.size)
- 
+
+  # print(len(d))
+
   sortidx = d.argsort()
   d = d[sortidx]
   l = l[sortidx]
 
-  tp = 0
-  for idx in range(len(d)):
-    tp = tp + l[idx]
 
+  for threshold in np.linspace(0,0.2,5001):
+
+    # tp = 0
+    # fp = 0
+    # tn = 0
+    # fn = 0
+
+    # for idx in range(len(d)):
+    #   tp = tp + int(l[idx] & (d[idx] < threshold))
+    #   fp = fp + int(~l[idx] & (d[idx] < threshold))
+    #   tn = tn + int(~l[idx] & (d[idx] > threshold))
+    #   fn = fn + int(l[idx] & (d[idx] > threshold))
+
+    match = d < threshold
+    tp = sum(l & match)
+    fp = sum(~l & match)
+    tn = sum(~l & ~match)
+    fn = sum(l & ~match)
+
+    if((tp + fp == 0) | (tp + fn == 0)):
+      continue
+    p = tp / (tp + fp)
+    r = tp / (tp + fn)
+
+    # print(p)
+    # print(r)
+
+    precision.append(p)
+    recall.append(r)
     # compute precision and recall values and append them to "recall" and "precision" vectors
     # your code here
 

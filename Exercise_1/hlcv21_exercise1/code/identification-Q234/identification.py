@@ -201,4 +201,3 @@ plt.figure()
 rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'dxdy', eval_num_bins, ['r', 'g', 'b'])
 plt.title('dx/dy histograms')
 plt.show()
-
