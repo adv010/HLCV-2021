@@ -183,21 +183,24 @@ with open('query.txt') as fp:
     query_images = fp.readlines()
 query_images = [x.strip() for x in query_images] 
 
-eval_num_bins = 20;
+eval_num_bins = 30;
 
 
 plt.figure()
 rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'rg', eval_num_bins, ['r', 'g', 'b'])
 plt.title('RG histograms')
-plt.show()
+# plt.show()
+plt.savefig('rg_rpc.png')
 
 
 plt.figure()
 rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'rgb', eval_num_bins / 2, ['r', 'g', 'b'])
 plt.title('RGB histograms')
-plt.show()
+# plt.show()
+plt.savefig('rgb_rpc.png')
 
 plt.figure()
 rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'dxdy', eval_num_bins, ['r', 'g', 'b'])
 plt.title('dx/dy histograms')
-plt.show()
+# plt.show()
+plt.savefig('dxdy_rpc.png')

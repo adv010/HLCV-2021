@@ -66,7 +66,7 @@ def rgb_hist(img_color, num_bins):
     assert img_color.dtype == 'float', 'incorrect image type'
 
     # define a 3D histogram  with "num_bins^3" number of entries
-    hists = np.zeros((num_bins, num_bins, num_bins))
+    hists = np.zeros((int(num_bins), int(num_bins), int(num_bins)))
     
     bin_size = 256/num_bins
 

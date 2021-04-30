@@ -32,7 +32,8 @@ def plot_rpc(D, plot_color):
   l = l[sortidx]
 
 
-  for threshold in np.linspace(0,0.2,5001):
+  # for threshold in np.linspace(0,0.2,5001):
+  for threshold in np.linspace(0,d.max(),5001):
 
     # tp = 0
     # fp = 0
