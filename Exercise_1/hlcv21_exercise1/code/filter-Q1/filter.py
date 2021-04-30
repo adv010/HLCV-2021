@@ -22,8 +22,8 @@ sigma = 4.0
 
 plt.figure()
 plt.plot(x, gx, '.-')
-plt.show()
-
+# plt.show()
+# plt.savefig('1a_gauss.png')
 
 ## function gaussianfilter (Question 1.b)
 img = rgb2gray(np.array(Image.open('graf.png')))
@@ -36,7 +36,8 @@ plt.sca(ax1)
 plt.imshow(img, cmap='gray', vmin=0, vmax=255)
 plt.sca(ax2)
 plt.imshow(smooth_img, cmap='gray', vmin=0, vmax=255)
-plt.show()
+# plt.show()
+# plt.savefig('1b_graf_blurred.png', dpi=1200)
 
 
 
@@ -54,7 +55,9 @@ plt.figure()
 plt.plot(x, G, 'b.-')
 plt.plot(x, D, 'r-')
 plt.legend( ('gauss', 'gaussdx'))
-plt.show()
+# plt.show()
+# plt.savefig('1c_gauss_gaussdx.png')
+
 
 G = G.reshape(1, G.size)		#takes G from (43,) to (1, 43), thus matching its number of dims with img.
 D = D.reshape(1, D.size)
@@ -72,12 +75,13 @@ plt.subplot(2,3,5)
 plt.imshow(conv2(conv2(img, D, 'same'), G.T, 'same') , cmap='gray')
 plt.subplot(2,3,6)
 plt.imshow(conv2(conv2(img, G.T, 'same'), D, 'same') , cmap='gray')
-plt.show()
+# plt.show()
+# plt.savefig('1c_combinations.png')
 
 
 ## function gaussderiv (Question 1.d)
 
-img_c = np.array(Image.open('graf.png')).astype('double')
+img_c = np.array(Image.open('kand.png')).astype('double')
 img = rgb2gray(img_c)
 [imgDx, imgDy] = gauss_module.gaussderiv(img, 7.0)
 
@@ -92,4 +96,5 @@ plt.imshow(imgDy, cmap='gray')
 plt.sca(ax3)
 imgmag = np.sqrt(imgDx**2 + imgDy**2)
 plt.imshow(imgmag, cmap='gray')
-plt.show()
+# plt.show()
+# plt.savefig('1d_kand_derivative.png', dpi=1200)
