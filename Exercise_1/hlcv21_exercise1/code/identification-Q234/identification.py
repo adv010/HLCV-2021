@@ -115,8 +115,6 @@ for imgidx1 in range(len(image_files1)):
 
       for hidx in range(len(hist_types)):
 
-
-
         if histogram_module.is_grayvalue_hist(hist_types[hidx]):
           hist1 = histogram_module.get_hist_by_name(img1_gray, num_bins_gray, hist_types[hidx])
           hist2 = histogram_module.get_hist_by_name(img2_gray, num_bins_gray, hist_types[hidx])
@@ -189,18 +187,18 @@ eval_num_bins = 30;
 plt.figure()
 rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'rg', eval_num_bins, ['r', 'g', 'b'])
 plt.title('RG histograms')
-# plt.show()
-plt.savefig('rg_rpc.png')
+plt.show()
+# plt.savefig('rg_rpc.png')
 
 
 plt.figure()
 rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'rgb', eval_num_bins / 2, ['r', 'g', 'b'])
 plt.title('RGB histograms')
-# plt.show()
-plt.savefig('rgb_rpc.png')
+plt.show()
+# plt.savefig('rgb_rpc.png')
 
 plt.figure()
 rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'dxdy', eval_num_bins, ['r', 'g', 'b'])
 plt.title('dx/dy histograms')
-# plt.show()
-plt.savefig('dxdy_rpc.png')
+plt.show()
+# plt.savefig('dxdy_rpc.png')

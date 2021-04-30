@@ -12,22 +12,9 @@ def normalized_hist(img_gray, num_bins):
     assert len(img_gray.shape) == 2, 'image dimension mismatch'
     assert img_gray.dtype == 'float', 'incorrect image type'
 
-    # # your code here
-    # bin_size = 256/num_bins
-    # hists = np.zeros(num_bins)
-    # #converting image into 1-D 
-    # img_gray_flattened = img_gray.flatten()
-    # for i in range(len(img_gray_flattened)):
-    #   bins = np.floor(img_gray_flattened//bin_size) + 1
-    #   hists[bins]+=1 
-
-    # hists = hists/hists.sum()
-    # return hists, bins
+    # your code here
     hists =[]
-    #hists = np.zeros(num_bins)
 
-
-    # print(img_gray.shape)
     img_gray = img_gray.flatten()
     bin_size = 256/num_bins
 
@@ -74,12 +61,10 @@ def rgb_hist(img_color, num_bins):
     for i in range(img_color.shape[0]):
         for j in range(img_color.shape[1]):
             # increment a histogram bin which corresponds to the value of pixel i,j; h(R,G,B)
-            # ...
             r = np.floor(img_color[i,j,0]/bin_size)
             g = np.floor(img_color[i,j,1]/bin_size)
             b = np.floor(img_color[i,j,2]/bin_size)
             hists[int(r),int(g),int(b)] += 1
-            # pass
 
     # normalize the histogram such that its integral (sum) is equal 1
     # your code here

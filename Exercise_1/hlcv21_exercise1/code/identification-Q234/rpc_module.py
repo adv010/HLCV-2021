@@ -32,19 +32,7 @@ def plot_rpc(D, plot_color):
   l = l[sortidx]
 
 
-  # for threshold in np.linspace(0,0.2,5001):
   for threshold in np.linspace(0,d.max(),5001):
-
-    # tp = 0
-    # fp = 0
-    # tn = 0
-    # fn = 0
-
-    # for idx in range(len(d)):
-    #   tp = tp + int(l[idx] & (d[idx] < threshold))
-    #   fp = fp + int(~l[idx] & (d[idx] < threshold))
-    #   tn = tn + int(~l[idx] & (d[idx] > threshold))
-    #   fn = fn + int(l[idx] & (d[idx] > threshold))
 
     match = d < threshold
     tp = sum(l & match)
@@ -52,13 +40,11 @@ def plot_rpc(D, plot_color):
     tn = sum(~l & ~match)
     fn = sum(l & ~match)
 
-    if((tp + fp == 0) | (tp + fn == 0)):
+    if((tp + fp == 0) | (tp + fn == 0)):    #avoid runtime error
       continue
+      
     p = tp / (tp + fp)
     r = tp / (tp + fn)
-
-    # print(p)
-    # print(r)
 
     precision.append(p)
     recall.append(r)

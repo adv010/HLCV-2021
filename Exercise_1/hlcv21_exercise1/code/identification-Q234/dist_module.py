@@ -10,14 +10,9 @@ def dist_chi2(x,y):
     if denom[i] != 0:
       dist[i] = num[i]/denom[i]
   return dist.sum()
-  #return np.sum((x-y)**2/(x+y))
-# 
-# compute l2 distance between x and y
-#
-def dist_l2(x,y):
-  #d_l2 = (x-y)*
 
-  #return np.sqrt(np.sum("ij,ij->j", d_l2, d_l2))
+# compute l2 distance between x and y
+def dist_l2(x,y):
   dist = np.linalg.norm(x - y)
   return dist
 
@@ -41,7 +36,3 @@ def get_dist_by_name(x, y, dist_name):
   else:
     assert 'unknown distance: %s'%dist_name
   
-
-
-
-
