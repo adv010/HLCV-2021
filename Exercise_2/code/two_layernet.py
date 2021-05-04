@@ -75,7 +75,6 @@ class TwoLayerNet(object):
         W2, b2 = self.params['W2'], self.params['b2']
         N, D = X.shape
 
-        a1 = X.reshape(N,1,D)
 
         # Compute the forward pass
         scores = 0.
@@ -85,9 +84,11 @@ class TwoLayerNet(object):
         # of shape (N, C).                                                          #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        
+        a1 = X.reshape(N,1,D)
+        
         z2 = np.matmul(a1,W1) + b1
-
+        
         #RELU
         a2 = z2 * (z2 > 0)
 
@@ -116,7 +117,18 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         # Implement the loss for softmax output layer
-        pass
+
+
+        #scores corresponding to the gt labels
+        classScores = scores[np.arange(len(scores)), y]
+
+        lossPerInput = - np.log(classScores)
+
+        dataLoss = lossPerInput.sum()/len(lossPerInput)
+
+        regularizationLoss = (W1*W1).sum() + (W2*W2).sum()
+
+        loss = dataLoss + reg*regularizationLoss
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
