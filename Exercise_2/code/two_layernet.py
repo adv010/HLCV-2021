@@ -75,6 +75,8 @@ class TwoLayerNet(object):
         W2, b2 = self.params['W2'], self.params['b2']
         N, D = X.shape
 
+        a1 = X.reshape(N,1,D)
+
         # Compute the forward pass
         scores = 0.
         #############################################################################
@@ -84,7 +86,19 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        z2 = np.matmul(a1,W1) + b1
+
+        #RELU
+        a2 = z2 * (z2 > 0)
+
+        z3 = np.matmul(a2,W2) + b2
+
+        #softmax
+        exp_z3 = np.exp(z3)
+        denom = exp_z3.sum(2)
+        exp_z3 = exp_z3.reshape(exp_z3.shape[0],exp_z3.shape[2])
+        scores = exp_z3/denom
+
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
