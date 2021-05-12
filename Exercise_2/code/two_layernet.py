@@ -88,7 +88,7 @@ class TwoLayerNet(object):
         a1 = X.reshape(N,1,D)
         
         z2 = np.matmul(a1,W1) + b1
-        
+
         #RELU
         a2 = z2 * (z2 > 0)
 
@@ -140,7 +140,31 @@ class TwoLayerNet(object):
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        pass
+
+        z3 = z3.reshape(z3.shape[0],z3.shape[2])
+        z2 = z2.reshape(z2.shape[0],z2.shape[2])
+        a2 = a2.reshape(a2.shape[0],a2.shape[2])
+
+        K = len(self.params['b2'])
+        weight = np.zeros((N,K))
+        for i in range(N):
+          for j in range(K):
+            if y[i] == j:
+              weight[i,j] = 1
+       
+        relu_z2 = np.zeros(z2.shape)
+        relu_z2[z2<=0] = 0
+        relu_z2[z2>0] = 1
+  
+        xy = np.matmul(W2,(scores- weight).T).T * relu_z2
+        grads['W2'] = (np.matmul((scores - weight).T, a2).T)/N + 2 * reg * W2
+        grads['b2'] = np.sum((1/N) * (scores - weight).T,axis=1)
+        grads['W1'] = ((1/N) * np.matmul(xy.T,X).T) +  2 * reg * W1
+        grads['b1'] = np.sum((1/N) * xy,axis =0)
+        # print(grads['W2'].shape)
+        # print(grads['b2'].shape)
+        # print(grads['W1'].shape)
+        # print(grads['b1'].shape)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -184,8 +208,13 @@ class TwoLayerNet(object):
             # them in X_batch and y_batch respectively.                             #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            pass
+            #pass
+            batch_index = np.random.choice(num_train, batch_size,replace=True)
+            X_batch = X[batch_index, :]
+            y_batch = y[batch_index]
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+
 
             # Compute loss and gradients using the current minibatch
             loss, grads = self.loss(X_batch, y=y_batch, reg=reg)
@@ -199,7 +228,11 @@ class TwoLayerNet(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            #pass
+            self.params['W2'] -= learning_rate * grads['W2']
+            self.params['b2'] -= learning_rate * grads['b2']
+            self.params['W1'] -= learning_rate * grads['W1']
+            self.params['b1'] -= learning_rate * grads['b1']
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -244,8 +277,25 @@ class TwoLayerNet(object):
         # TODO: Implement this function; it should be VERY simple!                #
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        #pass
+        W1, b1 = self.params['W1'], self.params['b1']
+        W2, b2 = self.params['W2'], self.params['b2']
+        N, D = X.shape
+        a1 = X.reshape(N,1,D)
+        
+        z2 = np.matmul(a1,W1) + b1
 
-        pass
+        #RELU
+        a2 = z2 * (z2 > 0)
+
+        z3 = np.matmul(a2,W2) + b2
+
+        #softmax
+        exp_z3 = np.exp(z3)
+        denom = exp_z3.sum(2)
+        exp_z3 = exp_z3.reshape(exp_z3.shape[0],exp_z3.shape[2])
+        scores = exp_z3/denom
+        y_pred = np.argmax(scores,axis=1)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
