@@ -1,8 +1,10 @@
+from typing import ForwardRef
 import torch
 import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 import sys
+import numpy as np
 
 def weights_init(m):
     if type(m) == nn.Linear:
@@ -24,6 +26,8 @@ print('Using device: %s'%device)
 #--------------------------------
 input_size = 32 * 32 * 3
 hidden_size = [50]
+# hidden_size = [100,50]
+# hidden_size = [200,200,150,100,50]
 num_classes = 10
 num_epochs = 10
 batch_size = 200
@@ -105,9 +109,16 @@ class MultiLayerPerceptron(nn.Module):
         # hidden_layers[-1] --> num_classes                                             #
         # Make use of linear and relu layers from the torch.nn module                   #
         #################################################################################
-        layes = []
+        layers = []
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+
+        a = input_size
+        for h in hidden_layers:
+            layers.append(nn.Linear(a, h))
+            layers.append(nn.ReLU())
+            a = h
+        layers.append(nn.Linear(a, num_classes))
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         self.layers = nn.Sequential(*layers)
@@ -121,11 +132,13 @@ class MultiLayerPerceptron(nn.Module):
         #################################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        out = self.layers(x)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return out
 
 model = MultiLayerPerceptron(input_size, hidden_size, num_classes).to(device)
+print(model)
 if train:
     model.apply(weights_init)
 
@@ -152,8 +165,30 @@ if train:
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 
+            # print(images.shape)
+            # images = np.reshape(images, (images.shape[0],-1), order = 'C')
+            images = images.view(images.shape[0],-1)
+            # images = torch.reshape(images, (images.shape[0],-1))
+            # print(images.shape)
+            labels_prediction = model.forward(images)
+            # print(labels_prediction.shape)
+            loss = criterion(labels_prediction, labels)
 
+            # Before the backward pass, use the optimizer object to zero all of the
+            # gradients for the variables it will update (which are the learnable
+            # weights of the model). This is because by default, gradients are
+            # accumulated in buffers( i.e, not overwritten) whenever .backward()
+            # is called. Checkout docs of torch.autograd.backward for more details.
+            optimizer.zero_grad()
 
+            # calling .backward() on any variable will run backprop, starting from it. 
+            # compute gradient of the variable with respect to all the learnable parameters of the model. 
+            # Internally, the parameters of each Module are stored in Tensors with requires_grad=True, 
+            # so this call will compute gradients for all learnable parameters in the model.
+            loss.backward()
+
+            # Calling the step function on an Optimizer makes an update to its parameters
+            optimizer.step()
 
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -165,6 +200,9 @@ if train:
         # Code to update the lr
         lr *= learning_rate_decay
         update_lr(optimizer, lr)
+        #You can also stop autograd from tracking history on Tensors with .requires_grad=True by wrapping the code block in with torch.no_grad()
+        #Wrap in torch.no_grad() because weights have requires_grad=True, but we don't need to track the updation formula in autograd.
+        #https://pytorch.org/tutorials/beginner/pytorch_with_examples.html
         with torch.no_grad():
             correct = 0
             total = 0
@@ -178,6 +216,13 @@ if train:
                 ####################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+
+                # print(images.shape)
+                # images = np.reshape(images, (images.shape[0],-1), order = 'C')
+                images = images.view(images.shape[0],-1)
+                # print(images.shape)
+                labels_prediction = model.forward(images)
+                _, predicted = torch.max(labels_prediction, 1)
 
 
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -208,7 +253,7 @@ else:
     # and loading the best model
 
     best_model = None # torch.load()
-    mode.load_state_dict(best_model)
+    model.load_state_dict(best_model)
     # Test the model
     # In test phase, we don't need to compute gradients (for memory efficiency)
     with torch.no_grad():
@@ -224,6 +269,9 @@ else:
             ####################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+            images = images.view(images.shape[0],-1)
+            labels_prediction = model.forward(images)
+            _, predicted = torch.max(labels_prediction, 1)
 
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
