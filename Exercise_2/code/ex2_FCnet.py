@@ -7,8 +7,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from two_layernet import TwoLayerNet
 from gradient_check import eval_numerical_gradient
-# from data_utils import get_CIFAR10_data
+from data_utils import get_CIFAR10_data
 from vis_utils import visualize_grid
+import time
+from itertools import product
 #-------------------------- * End of setup *---------------------------------------
 
 #-------------------------------------------------------
@@ -178,12 +180,14 @@ hidden_size = 50
 num_classes = 10
 net = TwoLayerNet(input_size, hidden_size, num_classes)
 # Train the network
+
+ 
 stats = net.train(X_train, y_train, X_val, y_val,
             num_iters=1000, batch_size=200,
             learning_rate=1e-4, learning_rate_decay=0.95,
             reg=0.25, verbose=True)
-
-# Predict on the validation set
+# print(stats)
+# # Predict on the validation set
 val_acc = (net.predict(X_val) == y_val).mean()
 print('Validation accuracy: ', val_acc)
 
@@ -250,7 +254,6 @@ show_net_weights(net)
 
 # **Explain your hyperparameter tuning process in the report.**
 
-best_net = None # store the best model into this
 
 #################################################################################
 # TODO: Tune hyperparameters using the validation set. Store your best trained  #
@@ -265,10 +268,49 @@ best_net = None # store the best model into this
 #################################################################################
 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-pass
+best_net = None
+
+def hyperparam_tuning():
+    best_iters = best_lr = best_lrd = best_reg = best_val = 0
+    hidden_size = 100
+    net = TwoLayerNet(input_size, hidden_size, num_classes)
+    iters = [1000,1500,2000,2400]
+    lrdecay = [0.9,0.95,0.98]
+    lrate = [1e-4,5e-4,1e-3]
+    reg = [0.1,0.25,0.5]
+
+    for i in iters:
+        for lrd in lrdecay:
+            for lr in lrate:
+                for r in reg:
+                    net.train(X_train,y_train,X_val,y_val,batch_size=200,verbose=False,num_iters=i,learning_rate = lr, learning_rate_decay = lrd, reg =r)
+                    val_model = (net.predict(X_val) == y_val).mean()
+                    if val_model > best_val:
+                        model = net
+                        best_iters = i
+                        best_lr = lr
+                        best_lrd = lrd
+                        best_reg = r
+                        best_val = val_model
+
+    print('Best Validation score : ', best_val)
+    print('Hidden size used : ', hidden_size)
+    print('No of iterations required : ', best_iters)
+    print('Learning rate used : ', best_lr)
+    print('Learning rate decay used : ', best_lrd)
+    print('regularization strength : ', best_reg)
+
+
+    return model
+
+best_net = hyperparam_tuning()
+
+ # store the best model into this
+
 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 # visualize the weights of the best network
+
 show_net_weights(best_net)
 
 # # Run on the test set
