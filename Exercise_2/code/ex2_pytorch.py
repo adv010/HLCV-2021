@@ -5,11 +5,14 @@ import torchvision
 import torchvision.transforms as transforms
 import sys
 import numpy as np
+import matplotlib.pyplot as plt
 
 def weights_init(m):
     if type(m) == nn.Linear:
-        m.weight.data.normal_(0.0, 1e-3)
-        m.bias.data.fill_(0.)
+        # m.weight.data.normal_(0.0, 1e-3)
+        # m.bias.data.fill_(0.)
+        torch.nn.init.xavier_uniform(m.weight)
+        m.bias.data.fill_(0.01)
 
 def update_lr(optimizer, lr):
     for param_group in optimizer.param_groups:
@@ -25,18 +28,17 @@ print('Using device: %s'%device)
 # Hyper-parameters
 #--------------------------------
 input_size = 32 * 32 * 3
-hidden_size = [50]
-# hidden_size = [100,50]
-# hidden_size = [200,200,150,100,50]
+hidden_size = [400,300,200,100,50]
+# hidden_size = [50]
 num_classes = 10
-num_epochs = 10
+num_epochs = 12
 batch_size = 200
 learning_rate = 1e-3
 learning_rate_decay = 0.95
 reg=0.001
 num_training= 49000
 num_validation =1000
-train = True
+train = False
 
 #-------------------------------------------------
 # Load the CIFAR-10 dataset
@@ -138,10 +140,12 @@ class MultiLayerPerceptron(nn.Module):
         return out
 
 model = MultiLayerPerceptron(input_size, hidden_size, num_classes).to(device)
-print(model)
+# print(model)
 if train:
     model.apply(weights_init)
 
+    training_accuracy = []
+    validation_accuracy = []
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
@@ -152,6 +156,10 @@ if train:
     total_step = len(train_loader)
     for epoch in range(num_epochs):
         for i, (images, labels) in enumerate(train_loader):
+                            
+            correct = 0
+            total = 0
+
             # Move tensors to the configured device
             images = images.to(device)
             labels = labels.to(device)
@@ -197,6 +205,15 @@ if train:
                 print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
                        .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
 
+
+            if (i+1) % 200 == 0:
+                _, predicted = torch.max(labels_prediction, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+                print('Training accuracy is: {} %'.format(100 * correct / total))
+                training_accuracy.append(100 * correct / total)
+
+
         # Code to update the lr
         lr *= learning_rate_decay
         update_lr(optimizer, lr)
@@ -231,6 +248,8 @@ if train:
 
             print('Validataion accuracy is: {} %'.format(100 * correct / total))
 
+            validation_accuracy.append(100 * correct / total)
+
     ##################################################################################
     # TODO: Now that you can train a simple two-layer MLP using above code, you can  #
     # easily experiment with adding more layers and different layer configurations   #
@@ -248,11 +267,21 @@ if train:
     # Save the model checkpoint
     torch.save(model.state_dict(), 'model.ckpt')
 
+    plt.plot(training_accuracy, label='training accuracy')
+    plt.plot(validation_accuracy, label='validation accurancy')
+    plt.title('Classification accuracy history')
+    plt.xlabel('Epoch')
+    plt.ylabel('Classification accuracy')
+    plt.legend()
+    plt.savefig('accuracy.png')
+    # plt.show()
+
+
 else:
     # Run the test code once you have your by setting train flag to false
     # and loading the best model
 
-    best_model = None # torch.load()
+    best_model = torch.load('model.ckpt')
     model.load_state_dict(best_model)
     # Test the model
     # In test phase, we don't need to compute gradients (for memory efficiency)
