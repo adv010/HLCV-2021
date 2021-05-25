@@ -27,14 +27,14 @@ print('Using device: %s'%device)
 input_size = 3
 num_classes = 10
 hidden_size = [128, 512, 512, 512, 512, 512]
-num_epochs = 20
+num_epochs = 50
 batch_size = 200
 learning_rate = 2e-3
 learning_rate_decay = 0.95
 reg=0.001
 num_training= 49000
 num_validation =1000
-norm_layer = None
+norm_layer = True # none for q1 and True for 2
 print(hidden_size)
 
 
@@ -45,9 +45,22 @@ print(hidden_size)
 # TODO: Q3.a Chose the right data augmentation transforms with the right        #
 # hyper-parameters and put them in the data_aug_transforms variable             #
 #################################################################################
+data_aug = False
 data_aug_transforms = []
 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+if data_aug == True:
 
+    transformsList = [
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomRotation(15),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomAffine(degrees=0, translate=(.4,.7)),
+        transforms.ColorJitter(
+            brightness=0.4,
+            contrast=0.4,
+            saturation=0.4)]
+
+    data_aug_transforms = transformsList
 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 norm_transform = transforms.Compose(data_aug_transforms+[transforms.ToTensor(),
                                      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -58,7 +71,7 @@ test_transform = transforms.Compose([transforms.ToTensor(),
 cifar_dataset = torchvision.datasets.CIFAR10(root='datasets/',
                                            train=True,
                                            transform=norm_transform,
-                                           download=False)
+                                           download=True)
 
 test_dataset = torchvision.datasets.CIFAR10(root='datasets/',
                                           train=False,
@@ -93,7 +106,7 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
 # Set norm_layer for different networks whether using batch normalization
 #-------------------------------------------------
 class ConvNet(nn.Module):
-    def __init__(self, input_size, hidden_layers, num_classes, norm_layer=None):
+    def __init__(self, input_size, hidden_layers, num_classes, norm_layer=None, dropout=True,dropout_value=0.4):
         super(ConvNet, self).__init__()
         #################################################################################
         # TODO: Initialize the modules required to implement the convolutional layer    #
@@ -104,8 +117,85 @@ class ConvNet(nn.Module):
         #################################################################################
         layers = []
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        if norm_layer == None and dropout==None:
+            self.conv = nn.Sequential(
+                nn.Conv2d(input_size, hidden_size[0], kernel_size = 3, stride=1, padding=1, padding_mode='zeros'),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+
+                nn.Conv2d(hidden_size[0], hidden_size[1], kernel_size = 3, stride=1, padding=1),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+
+                nn.Conv2d(hidden_size[1], hidden_size[2], kernel_size = 3, stride=1, padding=1),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+
+                nn.Conv2d(hidden_size[2], hidden_size[3], kernel_size = 3, stride=1, padding=1),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+
+                nn.Conv2d(hidden_size[3], hidden_size[4], kernel_size = 3, stride=1, padding=1),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU()
+            )
+            self.fc = nn.Sequential(nn.Linear(hidden_size[5], num_classes))
 
 
+        elif norm_layer != None and dropout==None:
+            self.conv = nn.Sequential(
+                nn.Conv2d(input_size, hidden_size[0], kernel_size = 3, stride=1, padding=1, padding_mode='zeros'),
+                nn.BatchNorm2d(hidden_size[0]),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+
+                nn.Conv2d(hidden_size[0], hidden_size[1], kernel_size = 3, stride=1, padding=1),
+                nn.BatchNorm2d(hidden_size[1]),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+
+                nn.Conv2d(hidden_size[1], hidden_size[2], kernel_size = 3, stride=1, padding=1),
+                nn.BatchNorm2d(hidden_size[2]),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+
+                nn.Conv2d(hidden_size[2], hidden_size[3], kernel_size = 3, stride=1, padding=1),
+                nn.BatchNorm2d(hidden_size[3]),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+
+                nn.Conv2d(hidden_size[3], hidden_size[4], kernel_size = 3, stride=1, padding=1),
+                nn.BatchNorm2d(hidden_size[4]),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU()
+            )
+            self.fc = nn.Sequential(nn.Linear(hidden_size[5], num_classes))
+
+        elif norm_layer != None and dropout!=None:
+            self.conv = nn.Sequential(
+                nn.Conv2d(input_size, hidden_size[0], kernel_size = 3, stride=1, padding=1, padding_mode='zeros'),
+                nn.BatchNorm2d(hidden_size[0]),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+                nn.Dropout2d(dropout_value),
+
+
+                nn.Conv2d(hidden_size[0], hidden_size[1], kernel_size = 3, stride=1, padding=1),
+                nn.BatchNorm2d(hidden_size[1]),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+                nn.Dropout2d(dropout_value),
+
+
+                nn.Conv2d(hidden_size[1], hidden_size[2], kernel_size = 3, stride=1, padding=1),
+                nn.BatchNorm2d(hidden_size[2]),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+                nn.Dropout2d(dropout_value),
+
+
+                nn.Conv2d(hidden_size[2], hidden_size[3], kernel_size = 3, stride=1, padding=1),
+                nn.BatchNorm2d(hidden_size[3]),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+                nn.Dropout2d(dropout_value),
+
+
+                nn.Conv2d(hidden_size[3], hidden_size[4], kernel_size = 3, stride=1, padding=1),
+                nn.BatchNorm2d(hidden_size[4]),
+                nn.MaxPool2d(kernel_size=2, stride=2), nn.ReLU(),
+                nn.Dropout2d(dropout_value)
+
+            )
+            self.fc = nn.Sequential(nn.Linear(hidden_size[5], num_classes))
+
+        self.layers = [self.conv, self.fc]
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     def forward(self, x):
@@ -114,6 +204,9 @@ class ConvNet(nn.Module):
         #################################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        x = self.conv(x)
+        x = x.squeeze() #flattening the input 
+        out = self.fc(x) #passing flattened input in fully connected layer
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return out
@@ -130,7 +223,12 @@ def PrintModelSize(model, disp=True):
     # training                                                                      #
     #################################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    model_size = []
+    for param in model.parameters():
+      if param.requires_grad:
+        model_size.append(param.numel())
+    model_sz = sum(model_size)
+    print("Number of trainable parameters:", model_sz)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     return model_sz
@@ -146,7 +244,19 @@ def VisualizeFilter(model):
     # You can use matlplotlib.imshow to visualize an image in python                #
     #################################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    #filters, biases = model.layers[0].get_weights()
+    filters = model.layers[0][0].weight.data.cpu().numpy()
+    fig = plt.figure()
+    num_row = 8
+    num_col=16
+    for idx in range(1, num_row*num_col + 1):
+      sub_fig = fig.add_subplot(num_row, num_col, idx)
+      sub_fig.axes.set_xticks([])
+      sub_fig.axes.set_yticks([])
+      sub_fig.set_facecolor("black")
+      plt.imshow((filters[idx-1, ...] - np.min(filters[idx-1]))/ (np.max(filters[idx-1] - np.min(filters[idx-1]))))
+    plt.show()
+    return
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 #======================================================================================
@@ -178,6 +288,9 @@ criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=reg)
 
 # Train the model
+
+##adding highest accuracy
+highest_accuracy =  0
 lr = learning_rate
 total_step = len(train_loader)
 for epoch in range(num_epochs):
@@ -215,14 +328,18 @@ for epoch in range(num_epochs):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
-        print('Validataion accuracy is: {} %'.format(100 * correct / total))
+        print('Validation accuracy is: {} %'.format(100 * correct / total))
         #################################################################################
         # TODO: Q2.b Implement the early stopping mechanism to save the model which has #
         # acheieved the best validation accuracy so-far.                                #
         #################################################################################
-        best_model = None
+        #best_model = None
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        intermediate_accuracy = (100 * correct / total)
+        if intermediate_accuracy > highest_accuracy:
+            highest_accuracy = intermediate_accuracy
+            best_model = model
+            torch.save(best_model.state_dict(),'./savedbestmodel.ckpt')#model'+str(epoch+1)+'.ckpt'
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     model.train()
@@ -235,7 +352,8 @@ model.eval()
 # best model so far and perform testing with this model.                        #
 #################################################################################
 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+model.load_state_dict(torch.load('./savedbestmodel.ckpt'))
+model.eval()
 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 with torch.no_grad():
     correct = 0
@@ -257,5 +375,4 @@ with torch.no_grad():
 VisualizeFilter(model)
 # Save the model checkpoint
 torch.save(model.state_dict(), 'model.ckpt')
-
 
