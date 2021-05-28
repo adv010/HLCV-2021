@@ -1,3 +1,7 @@
+#TODO
+#initialize conv layers, apply only when right flag is set
+#approprite fine_tuning flag
+
 import torch
 import torch.nn as nn
 import torchvision
@@ -6,8 +10,11 @@ import torchvision.transforms as transforms
 
 def weights_init(m):
     if type(m) == nn.Linear:
-        m.weight.data.normal_(0.0, 1e-3)
-        m.bias.data.fill_(0.)
+        print('Initializing weights for a linear layer')
+        # m.weight.data.normal_(0.0, 1e-3)
+        # m.bias.data.fill_(0.)
+        torch.nn.init.xavier_uniform(m.weight)
+        m.bias.data.fill_(0.01)
 
 def update_lr(optimizer, lr):
     for param_group in optimizer.param_groups:
@@ -27,14 +34,19 @@ layer_config= [512, 256]
 num_classes = 10
 num_epochs = 30
 batch_size = 200
+# batch_size = 20
 learning_rate = 1e-3
 learning_rate_decay = 0.99
 reg=0#0.001
 num_training= 49000
 num_validation =1000
-fine_tune = True
+# If fine_tune = True, the model is finetuned and all model parameters are updated. 
+# If fine_tune = False, only the last layer parameters are updated, the others remain fixed (this is the feature_extract mode).
+# https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
+fine_tune = False 
 pretrained=True
 
+# resize_transform = [transforms.Resize((224,224))]
 data_aug_transforms = [transforms.RandomHorizontalFlip(p=0.5)]#, transforms.RandomGrayscale(p=0.05)]
 #-------------------------------------------------
 # Load the CIFAR-10 dataset
@@ -92,7 +104,29 @@ class VggModel(nn.Module):
         # disable training the feature extraction layers based on the fine_tune flag.   #
         #################################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        
+        ori_model = models.vgg11_bn(pretrained=pretrained)
+        
+        # print("HERE")
+        # print(list(ori_model.children())[0])
+        # return
 
+        #extract the conv layers and drop the avg pooling layer and the FC layers (each of them are individual modules) 
+        # self.features = torch.nn.Sequential(*(list(ori_model.children())[:-2]))
+        self.cnn = list(ori_model.children())[0]
+
+        #set correct requires_grad flag for the loaded weights
+        feature_extract = not fine_tune
+        set_parameter_requires_grad(self.cnn, feature_extract)
+
+        #introduce new layers
+        # num_features = 25088
+        self.fc = nn.Sequential(
+                                    nn.Linear(layer_config[0],layer_config[1]),
+                                    nn.BatchNorm1d(layer_config[1]),
+                                    nn.ReLU(),
+                                    nn.Linear(layer_config[1],n_class)
+                                )
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -100,8 +134,10 @@ class VggModel(nn.Module):
         #################################################################################
         # TODO: Implement the forward pass computations                                 #
         #################################################################################
-        # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****\
+        x = self.cnn(x)
+        x = x.view(x.size(0), -1) # flat
+        out = self.fc(x)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return out
@@ -112,16 +148,23 @@ model= VggModel(num_classes, fine_tune, pretrained)
 # Print the model we just instantiated
 print(model)
 
+import torchsummary
+from torchsummary import summary
+print(summary(model,(3,32,32)))
+
 #################################################################################
 # TODO: Only select the required parameters to pass to the optimizer. No need to#
 # update parameters which should be held fixed (conv layers).                   #
 #################################################################################
 print("Params to learn:")
-if fine_tune:
+if not fine_tune:
     params_to_update = []
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-
+    #TODO: I think the flag is wrong above. Putting a 'not' there.
+    for name,param in model.named_parameters():
+        if param.requires_grad == True:
+            params_to_update.append(param)
+            print("\t",name)
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 else:
     params_to_update = model.parameters()
@@ -129,16 +172,26 @@ else:
         if param.requires_grad == True:
             print("\t",name)
 
+# print(params_to_update)
+# print("Number of named parameters being trained: ", len(params_to_update))
 
 model.to(device)
+model.apply(weights_init)
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(params_to_update, lr=learning_rate, weight_decay=reg)
 
 # Train the model
+
+##adding highest accuracy
+highest_accuracy =  0
 lr = learning_rate
 total_step = len(train_loader)
+
+training_loss = []
+validation_accuracy = []
+
 for epoch in range(num_epochs):
     for i, (images, labels) in enumerate(train_loader):
         # Move tensors to the configured device
@@ -157,6 +210,8 @@ for epoch in range(num_epochs):
         if (i+1) % 100 == 0:
             print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
                    .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+
+    training_loss.append(loss.item())
 
     # Code to update the lr
     lr *= learning_rate_decay
@@ -177,13 +232,18 @@ for epoch in range(num_epochs):
         # TODO: Q2.b Use the early stopping mechanism from previous questions to save   #
         # the model which has acheieved the best validation accuracy so-far.            #
         #################################################################################
-        best_model = None
+        # best_model = None
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        intermediate_accuracy = (100 * correct / total)
+        if intermediate_accuracy > highest_accuracy:
+            highest_accuracy = intermediate_accuracy
+            best_model = model
+            torch.save(best_model.state_dict(),'./savedbestmodel.ckpt')#model'+str(epoch+1)+'.ckpt'
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 
         print('Validataion accuracy is: {} %'.format(100 * correct / total))
+        validation_accuracy.append(100 * correct / total)
 
 #################################################################################
 # TODO: Use the early stopping mechanism from previous question to load the     #
@@ -192,7 +252,8 @@ for epoch in range(num_epochs):
 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+model.load_state_dict(torch.load('./savedbestmodel.ckpt'))
+model.eval()
 # Test the model
 # In test phase, we don't need to compute gradients (for memory efficiency)
 with torch.no_grad():
