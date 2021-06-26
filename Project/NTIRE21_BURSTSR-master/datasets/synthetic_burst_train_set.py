@@ -27,8 +27,10 @@ class SyntheticBurst(torch.utils.data.Dataset):
                                             'max_scale': 0.0,
                                             'border_crop': 24}
 
-        self.image_processing_params = {'random_ccm': True, 'random_gains': True, 'smoothstep': True,
-                                        'gamma': True,
+        #As a simplification, we do not apply any colour transformations :Akshay
+        #Also, to bypass a certain shape error, I have commented apply_ccm() in data_processing/synthetic_burst_generation.py
+        self.image_processing_params = {'random_ccm': False, 'random_gains': False, 'smoothstep': False,
+                                        'gamma': False,
                                         'add_noise': True}
         self.interpolation_type = 'bilinear'
 

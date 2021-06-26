@@ -86,7 +86,7 @@ def rgb2rawburst(image, burst_size, downsample_factor=1, burst_transformation_pa
         image = rgb2raw.gamma_expansion(image)
 
     # Inverts color correction.
-    image = rgb2raw.apply_ccm(image, rgb2cam)
+    # image = rgb2raw.apply_ccm(image, rgb2cam)
 
     # Approximately inverts white balance and brightening.
     image = rgb2raw.safe_invert_gains(image, rgb_gain, red_gain, blue_gain)
@@ -100,8 +100,9 @@ def rgb2rawburst(image, burst_size, downsample_factor=1, burst_transformation_pa
                                                    transformation_params=burst_transformation_params,
                                                    interpolation_type=interpolation_type)
 
-    # mosaic
-    image_burst = rgb2raw.mosaic(image_burst_rgb.clone())
+    # mosaic - as a simplification, we work with images in RGB space and not bayer space: Akshay
+    # image_burst = rgb2raw.mosaic(image_burst_rgb.clone())
+    image_burst = image_burst_rgb
 
     # Add noise
     if image_processing_params['add_noise']:
