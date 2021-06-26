@@ -28,7 +28,7 @@ class SyntheticBurst(torch.utils.data.Dataset):
                                             'border_crop': 24}
 
         #As a simplification, we do not apply any colour transformations :Akshay
-        #Also, to bypass a certain shape error, I have commented apply_ccm() in data_processing/synthetic_burst_generation.py
+        #Also, to bypass a some shape errors, I have commented all the corresponding functions in data_processing/synthetic_burst_generation.py
         self.image_processing_params = {'random_ccm': False, 'random_gains': False, 'smoothstep': False,
                                         'gamma': False,
                                         'add_noise': True}
