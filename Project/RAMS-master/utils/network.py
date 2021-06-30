@@ -138,14 +138,16 @@ def RAMS(scale, filters, kernel_size, channels, r, N):
     # Upscaling    
     x = conv3d_weightnorm(scale ** 2, (3,3,3), padding='valid')(x)
     x = layers.Lambda(lambda x: x[...,0,:])(x)
-    x = layers.Lambda(lambda x: tf.nn.depth_to_space(x, 3))(x)
+    x = layers.Lambda(lambda x: tf.nn.depth_to_space(x, scale))(x)
+    #x = layers.Lambda(lambda x: tf.nn.depth_to_space(x, 3))(x)
     
     
     # global path
     x_global_res = layers.Lambda(lambda x: tf.pad(x,[[0,0],[1,1],[1,1],[0,0]], mode='REFLECT', name='padding_2d'))(x_global_res)
     x_global_res = RTAB(x_global_res, 9, kernel_size, r)
     x_global_res = conv2d_weightnorm(scale ** 2, (3,3), padding='valid')(x_global_res)
-    x_global_res = layers.Lambda(lambda x: tf.nn.depth_to_space(x, 3))(x_global_res)
+    x_global_res = layers.Lambda(lambda x: tf.nn.depth_to_space(x, scale))(x_global_res)
+    #x_global_res = layers.Lambda(lambda x: tf.nn.depth_to_space(x, 3))(x_global_res)
     
     # output
     x = x + x_global_res
@@ -153,3 +155,4 @@ def RAMS(scale, filters, kernel_size, channels, r, N):
     
 
     return Model(img_inputs, outputs, name="RAMS")
+

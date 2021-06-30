@@ -5,7 +5,8 @@
 """Predictionfunctions for testing RAMS"""
 import tensorflow as tf
 import numpy as np
-
+from skimage import io
+import os
 
 def ensemble(X, geometric=True, shuffle = False, n=10):
     """RAMS+ prediction util"""
@@ -103,7 +104,7 @@ def savePredictions(x, band, submission_dir):
     elif band=='RED':
         i = 1160
         
-    for index in tqdm(range(len(x))):
+    for index in range(len(x)):
         io.imsave(os.path.join(submission_dir, f'imgset{i}.png'), x[index][0,:,:,0].numpy().astype(np.uint16),
                   check_contrast=False)
         i+=1
@@ -115,7 +116,7 @@ def savePredictionsPermut(x, band, submission_dir):
     elif band=='RED':
         i = 1160
         
-    for index in tqdm(range(len(x))):
+    for index in range(len(x)):
         io.imsave(os.path.join(submission_dir, f'imgset{i}.png'), x[index][0,:,:,0].astype(np.uint16),
                   check_contrast=False)
         i+=1

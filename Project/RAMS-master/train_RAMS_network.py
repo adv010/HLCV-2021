@@ -20,9 +20,9 @@
 # In[ ]:
 
 
-get_ipython().run_line_magic('matplotlib', 'inline')
-get_ipython().run_line_magic('reload_ext', 'autoreload')
-get_ipython().run_line_magic('autoreload', '2')
+#get_ipython().run_line_magic('matplotlib', 'inline')
+#get_ipython().run_line_magic('reload_ext', 'autoreload')
+#get_ipython().run_line_magic('autoreload', '2')
 
 
 # In[ ]:
@@ -141,10 +141,12 @@ print('y_val_mask: ', y_val_mask.shape)
 d = LR_SIZE  # 32x32 patches
 s = OVERLAP  # overlapping patches
 # Ex: n = (128-d)/s+1 = 7 -> 49 sub images from each image
-
+print(X_train.shape)
+print(X_train[...,0].shape)
 X_train_patches = gen_sub(X_train[...,0],d,s)
+#X_train_patches = gen_sub(X_train,d,s)
 X_val_patches = gen_sub(X_val[...,0],d,s)
-
+#X_val_patches = gen_sub(X_val,d,s)
 
 # In[ ]:
 

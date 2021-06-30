@@ -20,16 +20,17 @@
 # In[ ]:
 
 
-get_ipython().run_line_magic('matplotlib', 'inline')
-get_ipython().run_line_magic('reload_ext', 'autoreload')
-get_ipython().run_line_magic('autoreload', '2')
+#get_ipython().run_line_magic('matplotlib', 'inline')
+#get_ipython().run_line_magic('reload_ext', 'autoreload')
+#get_ipython().run_line_magic('autoreload', '2')
 
 
 # In[ ]:
 
 
 # import utils and basic libraries
-from utils.preprocessing import load_dataset,select_T_images,register_dataset,augment_dataset
+from preprocessing import load_dataset,select_T_images,register_dataset,augment_dataset
+#from utils.preprocessing import load_dataset,select_T_images,register_dataset,augment_dataset
 import numpy as np
 import os
 import matplotlib.pyplot as plt
