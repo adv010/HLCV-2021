@@ -13,14 +13,15 @@ class SyntheticBurst(torch.utils.data.Dataset):
     [1] Unprocessing Images for Learned Raw Denoising, Brooks, Tim and Mildenhall, Ben and Xue, Tianfan and Chen,
     Jiawen and Sharlet, Dillon and Barron, Jonathan T, CVPR 2019
     """
-    def __init__(self, base_dataset, burst_size=8, crop_sz=384, transform=tfm.ToTensor()):
+    def __init__(self, base_dataset, burst_size=8, crop_sz=384, transform=tfm.ToTensor(), image_pair=True):
         self.base_dataset = base_dataset
 
         self.burst_size = burst_size
         self.crop_sz = crop_sz
         self.transform = transform
+        self.image_pair = image_pair
 
-        self.downsample_factor = 4
+        self.downsample_factor = 3
         self.burst_transformation_params = {'max_translation': 24.0,
                                             'max_rotation': 1.0,
                                             'max_shear': 0.0,
@@ -67,14 +68,20 @@ class SyntheticBurst(torch.utils.data.Dataset):
             meta_info: A dictionary containing the parameters used to generate the synthetic burst.
         """
         frame = self.base_dataset[index]
+        # print(frame.shape)
 
         # Augmentation, e.g. convert to tensor
         if self.transform is not None:
-            frame = self.transform(frame)
+            if self.image_pair:
+                frame1 = self.transform(frame[0])
+                frame2 = self.transform(frame[1])
+            else:
+                frame1 = self.transform(frame)
+        # print(frame1.shape)
 
-        # Extract a random crop from the image
+        # Extract a random crop from the first image
         crop_sz = self.crop_sz + 2 * self.burst_transformation_params.get('border_crop', 0)
-        frame_crop = syn_burst_utils.random_crop(frame, crop_sz)
+        frame_crop, r1, c1 = syn_burst_utils.random_crop(frame1, crop_sz)
 
         # Generate RAW burst
         burst, frame_gt, burst_rgb, flow_vectors, meta_info = syn_burst_utils.rgb2rawburst(frame_crop,
@@ -88,5 +95,22 @@ class SyntheticBurst(torch.utils.data.Dataset):
         if self.burst_transformation_params.get('border_crop') is not None:
             border_crop = self.burst_transformation_params.get('border_crop')
             frame_gt = frame_gt[:, border_crop:-border_crop, border_crop:-border_crop]
+        
+        
+        #do the above processing for the right pairs - note that the left and right images have the same base cropping region, but rotationa nd translation for all 2N images are independent.
+        if self.image_pair:
+            frame_crop2, _, _ = syn_burst_utils.random_crop(frame2, crop_sz, r1, c1)
+        
+            # Generate RAW burst - we do not care about the other returned parameters for now
+            burst2, _, _, _, _ = syn_burst_utils.rgb2rawburst(frame_crop2,
+                                                              self.burst_size,
+                                                              self.downsample_factor,
+                                                              burst_transformation_params=self.burst_transformation_params,
+                                                              image_processing_params=self.image_processing_params,
+                                                              interpolation_type=self.interpolation_type
+                                                              )
+
+            burst = torch.cat((burst, burst2), 0)
+            # print(burst.shape)
 
         return burst, frame_gt, flow_vectors, meta_info

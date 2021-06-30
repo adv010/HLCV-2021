@@ -4,16 +4,28 @@ import matplotlib.pyplot as plt
 from datasets.holopix_dataset import HolopixDataset
 from datasets.synthetic_burst_train_set import SyntheticBurst
 from torch.utils.data.dataloader import DataLoader
+from os.path import join
+from pathlib import Path
 
-grayscale = False
+
+inputPath = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k/'
+outputPath = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale/'
+lrOutputPath = join(outputPath, 'burst')
+hrOutputPath = join(outputPath, 'gt')
+Path(lrOutputPath).mkdir(parents=True, exist_ok=True)
+Path(hrOutputPath).mkdir(parents=True, exist_ok=True)
+
+grayscale = True
+augmentImagePair = True
 
 # print("HERE: 0")
 #read the images
-holopix_dataset = HolopixDataset(root='./toy_dataset/', split='train')
+holopix_dataset = HolopixDataset(root=inputPath, split='test', image_pair=augmentImagePair)
 
 # print("HERE: 1")
 #process the image
-synthetic_dataset = SyntheticBurst(holopix_dataset, burst_size=5, crop_sz=256)
+#burst size corresponds to one input and not a pair
+synthetic_dataset = SyntheticBurst(holopix_dataset, burst_size=5, crop_sz=384, image_pair=augmentImagePair)
 
 # print("HERE: 2")
 #creating DataLoader object gives you option to shuffle etc
@@ -35,11 +47,11 @@ for i, processedInstance in enumerate(synthetic_dataset):
 
     if grayscale:
         gt = cv2.cvtColor(gt,cv2.COLOR_BGR2GRAY)
-    cv2.imwrite('./toy_dataset/gt/image' + str(i) + '.jpg', gt)
+    cv2.imwrite(hrOutputPath + '/image' + str(i) + '.jpg', gt)
 
     for j in range(burst_array.shape[0]):
         if grayscale:
             res = cv2.cvtColor(burst_array[j],cv2.COLOR_BGR2GRAY)
         else:
             res = burst_array[j]
-        cv2.imwrite('./toy_dataset/burst/image' + str(i) + '_instance' + str(j) + '.jpg', res)
+        cv2.imwrite(lrOutputPath + '/image' + str(i) + '_instance' + str(j) + '.jpg', res)

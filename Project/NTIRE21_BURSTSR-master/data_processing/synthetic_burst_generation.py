@@ -7,7 +7,7 @@ import data_processing.camera_pipeline as rgb2raw
 from utils.data_format_utils import torch_to_numpy, numpy_to_torch
 
 
-def random_crop(frames, crop_sz):
+def random_crop(frames, crop_sz, r1=None, c1=None):
     """ Extract a random crop of size crop_sz from the input frames. If the crop_sz is larger than the input image size,
     then the largest possible crop of same aspect ratio as crop_sz will be extracted from frames, and upsampled to
     crop_sz.
@@ -32,8 +32,10 @@ def random_crop(frames, crop_sz):
 
     assert orig_crop_sz[-2] <= shape[-2] and orig_crop_sz[-1] <= shape[-1], 'Bug in crop size estimation!'
 
-    r1 = random.randint(0, shape[-2] - orig_crop_sz[-2])
-    c1 = random.randint(0, shape[-1] - orig_crop_sz[-1])
+    if r1 is None:
+        r1 = random.randint(0, shape[-2] - orig_crop_sz[-2])
+    if c1 is None:
+        c1 = random.randint(0, shape[-1] - orig_crop_sz[-1])
 
     r2 = r1 + orig_crop_sz[0].int().item()
     c2 = c1 + orig_crop_sz[1].int().item()
@@ -43,7 +45,7 @@ def random_crop(frames, crop_sz):
     # Resize to crop_sz
     if scale_factor < 1.0:
         frames_crop = F.interpolate(frames_crop.unsqueeze(0), size=crop_sz.int().tolist(), mode='bilinear').squeeze(0)
-    return frames_crop
+    return frames_crop, r1, c1
 
 
 def rgb2rawburst(image, burst_size, downsample_factor=1, burst_transformation_params=None,
