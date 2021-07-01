@@ -16,7 +16,7 @@ from skimage.feature import masked_register_translation
 
 
 
-def load_dataset(base_dir, part):
+def load_dataset(base_dir, part, L):
     """
     Load the original proba-v dataset already splitted in train, validation and test
     
@@ -27,34 +27,39 @@ def load_dataset(base_dir, part):
     part: str
         'train', 'val' or test string
     """
-    imgsets = sorted(glob(base_dir+"/"+part+"/"+"/*"))
+    LR_imgsets = sorted(glob(base_dir+"/"+part+"/burst/*.jpg"))
+    HR_imgsets = sorted(glob(base_dir+"/"+part+"/gt/*.jpg"))
+
+    # print(HR_imgsets)
+    # print(LR_imgsets)
     
-    X = []; X_masks = []; y = []; y_masks = []
-    for imgset in tqdm(imgsets):
-        LRs = sorted(glob(imgset+"/LR*.png"))
-        QMs = sorted(glob(imgset+"/QM*.png"))
-        T = len(LRs)
+    # X = []; X_masks = []; y = []; y_masks = []
+    X = []
+    y = []
+
+    for gt in tqdm(HR_imgsets):
+        y.append(cv2.imread(gt,cv2.IMREAD_UNCHANGED)[...,None])
+        # y_masks.append(cv2.imread(imgset+"/SM.png",cv2.IMREAD_UNCHANGED).astype("bool")[...,None])
+
+    # for imgset in tqdm(LR_imgsets):
+    # print(len(LR_imgsets))
+    for i in tqdm(range(int(len(LR_imgsets)/L))):
+        LRs = LR_imgsets[i*L:(i+1)*L]
+        # QMs = sorted(glob(imgset+"/QM*.png"))
+        # T = len(LRs)
         
-        LR = np.empty((128,128,T),dtype="uint16")
-        QM = np.empty((128,128,T),dtype="bool")
+        LR = np.empty((128,128,L),dtype="uint8")
+        # QM = np.empty((128,128,T),dtype="bool")
         
         for i,img in enumerate(LRs):
             LR[...,i] = cv2.imread(img,cv2.IMREAD_UNCHANGED)
-        for i,img in enumerate(QMs):
-            QM[...,i] = cv2.imread(img,cv2.IMREAD_UNCHANGED).astype("bool")
         
         X.append(LR)
-        X_masks.append(QM)
+        # X_masks.append(QM)
         
-        if part != "test":
-            y.append(cv2.imread(imgset+"/HR.png",cv2.IMREAD_UNCHANGED)[...,None])
-            y_masks.append(cv2.imread(imgset+"/SM.png",cv2.IMREAD_UNCHANGED).astype("bool")[...,None])
     
-    if part != "test":
-        return X,X_masks,np.array(y),np.array(y_masks)
-    else:
-         return X,X_masks
-
+    return X,np.array(y)
+    # return X,X_masks,np.array(y),np.array(y_masks)
 
 
 def augment_dataset(X, y, y_masks, n_augment=7):

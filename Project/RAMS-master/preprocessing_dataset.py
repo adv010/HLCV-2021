@@ -16,8 +16,8 @@
 
 
 # import utils and basic libraries
-from preprocessing import load_dataset,select_T_images,register_dataset,augment_dataset
-#from utils.preprocessing import load_dataset,select_T_images,register_dataset,augment_dataset
+# from preprocessing import load_dataset
+from utils.preprocessing import load_dataset
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -27,27 +27,28 @@ import matplotlib.pyplot as plt
 #-------------
 # Settings
 #-------------
-T = 9                                # number of temporal dimension
-dataset_dir = 'probav_data'          # input dir (train val and test splitted)
-dataset_output_dir = 'dataset'       # output dir
+L = 10                               #number of temporal dimensions loaded
+T = 9                                # number of temporal dimensions to be used
+dataset_dir = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'          # input dir (train val and test splitted)
+dataset_output_dir = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'       # output dir
 train_full = False                   # train without a validation
 
 
 
 # train loading
 # X_train, X_train_masks, y_train, y_train_masks = load_dataset(base_dir=dataset_dir, part="train")
-X_train, y_train = load_dataset(base_dir=dataset_dir, part="train")
+X_train, y_train = load_dataset(base_dir=dataset_dir, part="toy_train", L=L)
 print(f"Train scenes: {len(X_train)} | Train RED y shape: {y_train.shape}")
 
-# validation loading
-# X_val, X_RED_val_masks, y_val, y_RED_val_masks = load_dataset(base_dir=dataset_dir, part="val")
-X_val, y_val = load_dataset(base_dir=dataset_dir, part="val")
-print(f"Val scenes: {len(X_val)} | Val RED y shape: {y_val.shape}")
+# # validation loading
+# # X_val, X_RED_val_masks, y_val, y_RED_val_masks = load_dataset(base_dir=dataset_dir, part="val")
+# X_val, y_val = load_dataset(base_dir=dataset_dir, part="val", L=L)
+# print(f"Val scenes: {len(X_val)} | Val RED y shape: {y_val.shape}")
 
-# test loading
-# X_test, X_RED_test_masks = load_dataset(base_dir=dataset_dir,part="test")
-X_test = load_dataset(base_dir=dataset_dir,part="test")
-print(f"Test scenes: {len(X_test)}")
+# # test loading
+# # X_test, X_RED_test_masks = load_dataset(base_dir=dataset_dir,part="test")
+# X_test, y_test = load_dataset(base_dir=dataset_dir,part="toy_train", L=L)
+# print(f"Test scenes: {len(X_test)} | Test y shape: {y_test.shape}")
 
 
 
@@ -70,13 +71,16 @@ if train_full:
 #-------------
 # Settings
 #-------------
-index = 30
+index = 8
 
-fig, ax = plt.subplots(2, T, figsize=(20,5))
-ax[0,i].imshow(X_train[index][...,i], cmap = 'gray')
-ax[0,i].axis('off')
-ax[1,i].imshow(X_train_masks[index][...,i], cmap = 'gray')
-ax[1,i].axis('off')
+fig = plt.figure(figsize=(8, 8))
+columns = 5
+rows = 2
+for i in range(L):
+    fig.add_subplot(rows, columns, i+1)
+    plt.imshow(X_train[index][...,i], cmap = 'gray')
+# plt.show()
+plt.savefig('temp.png')
 
 
 
@@ -88,11 +92,11 @@ np.save(os.path.join(dataset_output_dir, 'X_train.npy'), X_train)
 np.save(os.path.join(dataset_output_dir, 'y_train.npy'), y_train)
 # np.save(os.path.join(dataset_output_dir, 'y_train_masks.npy'), y_train_masks)
 
-# save validation
-if not train_full:
-    np.save(os.path.join(dataset_output_dir, 'X_val.npy'), X_val)
-    np.save(os.path.join(dataset_output_dir, 'y_val.npy'), y_val)
-    # np.save(os.path.join(dataset_output_dir, 'y_RED_val_masks.npy'), y_RED_val_masks)
+# # save validation
+# if not train_full:
+#     np.save(os.path.join(dataset_output_dir, 'X_val.npy'), X_val)
+#     np.save(os.path.join(dataset_output_dir, 'y_val.npy'), y_val)
+#     # np.save(os.path.join(dataset_output_dir, 'y_RED_val_masks.npy'), y_RED_val_masks)
 
-# save test
-np.save(os.path.join(dataset_output_dir, 'X_test.npy'), X_test)
+# # save test
+# np.save(os.path.join(dataset_output_dir, 'X_test.npy'), X_test)
