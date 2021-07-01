@@ -43,16 +43,20 @@ def load_dataset(base_dir, part, L):
 
     # for imgset in tqdm(LR_imgsets):
     # print(len(LR_imgsets))
-    for i in tqdm(range(int(len(LR_imgsets)/L))):
-        LRs = LR_imgsets[i*L:(i+1)*L]
+    for scene_index in tqdm(range(int(len(LR_imgsets)/L))):
+
+        #stack of images for one scene
+        LRs = LR_imgsets[scene_index*L:(scene_index+1)*L]
         # QMs = sorted(glob(imgset+"/QM*.png"))
         # T = len(LRs)
         
-        LR = np.empty((128,128,L),dtype="uint8")
+        LR = np.empty((128,128,9),dtype="uint8")
         # QM = np.empty((128,128,T),dtype="bool")
         
-        for i,img in enumerate(LRs):
-            LR[...,i] = cv2.imread(img,cv2.IMREAD_UNCHANGED)
+        for instance_index,img in enumerate(LRs):
+            # if instance_index == 9:
+            #     break
+            LR[...,instance_index] = cv2.imread(img,cv2.IMREAD_UNCHANGED)
         
         X.append(LR)
         # X_masks.append(QM)

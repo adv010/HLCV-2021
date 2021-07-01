@@ -47,7 +47,7 @@ tf.random.set_seed(42)
 #-------------
 # General Settings
 #-------------
-PATH_DATASET = 'dataset' # pre-processed dataset path
+PATH_DATASET = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
 name_net = 'RAMS' # name of the network
 LR_SIZE = 128 # pathces dimension
 SCALE = 3 # upscale of the proba-v dataset is 3
@@ -70,7 +70,7 @@ CHANNELS = 9 # number of temporal steps
 R = 8 # attention compression
 N = 12 # number of residual feature attention blocks
 lr = 1e-4 # learning rate (Nadam optimizer)
-BATCH_SIZE = 32 # batch size
+BATCH_SIZE = 8  #32 # batch size
 EPOCHS_N = 100 # number of epochs
 
 
@@ -79,15 +79,14 @@ X_val = np.load(os.path.join(PATH_DATASET, f'X_val.npy'))
 y_val = np.load(os.path.join(PATH_DATASET, f'y_val.npy'))
 # y_val_mask = np.load(os.path.join(PATH_DATASET, f'y_{band}_val_masks.npy'))
 
-
-# load ESA test set (no ground truth)
-# X_test = np.load(os.path.join(PATH_DATASET, f'X_test.npy'))
-
-
 # print loaded dataset info
 print('X_val: ', X_val.shape)
 print('y_val: ', y_val.shape)
 # print('y_val_mask: ', y_val_mask.shape)
+
+
+# load ESA test set (no ground truth)
+# X_test = np.load(os.path.join(PATH_DATASET, f'X_test.npy'))
 
 # print('X_test: ', X_test.shape)
 

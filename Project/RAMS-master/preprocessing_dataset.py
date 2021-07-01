@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 #-------------
 # Settings
 #-------------
-L = 10                               #number of temporal dimensions loaded
+L = 10                               # number of temporal dimensions loaded
 T = 9                                # number of temporal dimensions to be used
 dataset_dir = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'          # input dir (train val and test splitted)
 dataset_output_dir = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'       # output dir
@@ -38,7 +38,7 @@ train_full = False                   # train without a validation
 # train loading
 # X_train, X_train_masks, y_train, y_train_masks = load_dataset(base_dir=dataset_dir, part="train")
 X_train, y_train = load_dataset(base_dir=dataset_dir, part="toy_train", L=L)
-print(f"Train scenes: {len(X_train)} | Train RED y shape: {y_train.shape}")
+print(f"Train scenes: {len(X_train)} | Train y shape: {y_train.shape}")
 
 # # validation loading
 # # X_val, X_RED_val_masks, y_val, y_RED_val_masks = load_dataset(base_dir=dataset_dir, part="val")
