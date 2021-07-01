@@ -16,7 +16,7 @@ from skimage.feature import masked_register_translation
 
 
 
-def load_dataset(base_dir, part, band):
+def load_dataset(base_dir, part):
     """
     Load the original proba-v dataset already splitted in train, validation and test
     
@@ -26,10 +26,8 @@ def load_dataset(base_dir, part, band):
         path to the original dataset folder
     part: str
         'train', 'val' or test string
-    band: str
-        string with the band 'NIR' or 'RED'
     """
-    imgsets = sorted(glob(base_dir+"/"+part+"/"+band+"/*"))
+    imgsets = sorted(glob(base_dir+"/"+part+"/"+"/*"))
     
     X = []; X_masks = []; y = []; y_masks = []
     for imgset in tqdm(imgsets):

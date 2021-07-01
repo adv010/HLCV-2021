@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 # # Test RAMS Deep Neural Network on Proba-V Dataset
 # ![proba_v_dataset](media/rams_architecture.png "Logo Title Text 1")
 # 
@@ -24,16 +21,6 @@
 #     - 4.2 RAMS+ prediction
 #     - 4.3 Submission zip creation
 
-# In[ ]:
-
-
-#get_ipython().run_line_magic('matplotlib', 'inline')
-#get_ipython().run_line_magic('reload_ext', 'autoreload')
-#get_ipython().run_line_magic('autoreload', '2')
-
-
-# In[ ]:
-
 
 # import utils and basic libraries
 import os
@@ -50,17 +37,11 @@ from skimage import io
 from zipfile import ZipFile
 
 
-# In[ ]:
-
-
 # gpu setting (we strongly discouraged to run this notebook without an available GPU)
 gpus = tf.config.experimental.list_physical_devices('GPU')
 tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
 tf.config.experimental.set_memory_growth(gpus[0], True)
 tf.random.set_seed(42)
-
-
-# In[ ]:
 
 
 #-------------
@@ -72,15 +53,12 @@ LR_SIZE = 128 # pathces dimension
 SCALE = 3 # upscale of the proba-v dataset is 3
 HR_SIZE = LR_SIZE * SCALE # upscale of the dataset is 3
 OVERLAP = 32 # overlap between pathces
-CLEAN_PATH_PX = 0.85 # percentage of clean pixels to accept a patch
-band = 'NIR' # choose the band for the training
-checkpoint_dir = f'ckpt/{band}_{name_net}' # weights path
+# CLEAN_PATH_PX = 0.85 # percentage of clean pixels to accept a patch
+# band = 'NIR' # choose the band for the training
+checkpoint_dir = f'ckpt/{name_net}' # weights path
 log_dir = 'logs' # tensorboard logs path
 submission_dir = 'submission' # submission dir
 name_zip = 'submission_RAMS.zip'
-
-
-# In[ ]:
 
 
 #-------------
@@ -96,65 +74,36 @@ BATCH_SIZE = 32 # batch size
 EPOCHS_N = 100 # number of epochs
 
 
-# <a id="loading"></a>
-# # 1.0 Dataset Loading
-
-# In[ ]:
-
-
 # load validation 
-X_val = np.load(os.path.join(PATH_DATASET, f'X_{band}_val.npy'))
-y_val = np.load(os.path.join(PATH_DATASET, f'y_{band}_val.npy'))
-y_val_mask = np.load(os.path.join(PATH_DATASET, f'y_{band}_val_masks.npy'))
-
-
-# In[ ]:
+X_val = np.load(os.path.join(PATH_DATASET, f'X_val.npy'))
+y_val = np.load(os.path.join(PATH_DATASET, f'y_val.npy'))
+# y_val_mask = np.load(os.path.join(PATH_DATASET, f'y_{band}_val_masks.npy'))
 
 
 # load ESA test set (no ground truth)
-X_test = np.load(os.path.join(PATH_DATASET, f'X_{band}_test.npy'))
-
-
-# In[ ]:
+# X_test = np.load(os.path.join(PATH_DATASET, f'X_test.npy'))
 
 
 # print loaded dataset info
 print('X_val: ', X_val.shape)
 print('y_val: ', y_val.shape)
-print('y_val_mask: ', y_val_mask.shape)
+# print('y_val_mask: ', y_val_mask.shape)
 
-print('X_test: ', X_test.shape)
+# print('X_test: ', X_test.shape)
 
-
-# <a id="network"></a>
-# # 2.0 Load the Network
-
-# In[ ]:
 
 
 # build rams network
-rams_network = RAMS(scale=SCALE, filters=FILTERS, 
-                 kernel_size=KERNEL_SIZE, channels=CHANNELS, r=R, N=N)
-
-
-# In[ ]:
+rams_network = RAMS(scale=SCALE, filters=FILTERS, kernel_size=KERNEL_SIZE, channels=CHANNELS, r=R, N=N)
 
 
 # load weights from checkpoint_dir
-checkpoint = tf.train.Checkpoint(step=tf.Variable(0),
-                                psnr=tf.Variable(1.0),
-                                model=rams_network)
-
+checkpoint = tf.train.Checkpoint(step=tf.Variable(0), psnr=tf.Variable(1.0), model=rams_network)
 checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
 
 
-# <a id="test"></a>
-# # 3.0 Test the Network
 
 # ## 3.1 Qualitative results
-
-# In[ ]:
-
 
 # print example images
 index = 15 # choose an image from validation set
@@ -174,8 +123,6 @@ fig.show()
 
 
 # ## 3.2 Compute RAMS cPSNR
-
-# In[ ]:
 
 
 # compute cPSNR with trained network
@@ -336,9 +283,8 @@ for index in tqdm(range(X_test.shape[0])):
 savePredictions(X_preds, band, submission_dir)
 
 
-# ## 4.2 RAMS+ prediction
+# 4.2 RAMS+ prediction
 
-# In[ ]:
 
 
 # predict proba-v test set with RAMS+
@@ -349,16 +295,11 @@ for index in tqdm(range(X_test.shape[0])):
     X_preds.append(predict_tensor_permute(rams_network, X_test[index], n_ens=n_permut))
 
 
-# In[ ]:
-
-
 # save predictions in submission_dir
 savePredictionsPermut(X_preds, band, submission_dir)
 
 
 # ## 4.3 Submission zip creation
-
-# In[ ]:
 
 
 # zip creation
@@ -369,4 +310,3 @@ with tqdm(total=290, desc="Zipping images") as pbar:
         pbar.update(1)
 zf.close()
 print('Done!')
-
