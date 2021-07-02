@@ -36,8 +36,6 @@ class Trainer(object):
     ----------
     model: obj
         model to be trained
-    band: string
-        band to train with
     image_hr_size: int
         size of the HR image
     name_net: string
@@ -68,13 +66,12 @@ class Trainer(object):
         A single testing step
     """
     def __init__(self,
-                 model, band, image_hr_size, name_net,
+                 model, image_hr_size, name_net,
                  loss, metric,
                  optimizer,
                  checkpoint_dir='./checkpoint', log_dir='logs'):
 
         self.now = None
-        self.band = band
         self.name_net = name_net
         self.loss = loss
         self.image_hr_size = image_hr_size
@@ -125,8 +122,8 @@ class Trainer(object):
             (validation_data[0], *validation_data[1])).shuffle(buffer_size).batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE).take(val_steps)
 
         # Tensorboard logger
-        writer_train = tf.summary.create_file_writer(os.path.join(self.log_dir, f'train_{self.band}_{self.name_net}'))
-        writer_test = tf.summary.create_file_writer(os.path.join(self.log_dir, f'test_{self.band}_{self.name_net}'))
+        writer_train = tf.summary.create_file_writer(os.path.join(self.log_dir, f'train_{self.name_net}'))
+        writer_test = tf.summary.create_file_writer(os.path.join(self.log_dir, f'test_{self.name_net}'))
 
         global_step = tf.cast(self.checkpoint.step,tf.int64)
         total_steps = tf.cast(ds_len/batch_size,tf.int64)

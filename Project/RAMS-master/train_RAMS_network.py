@@ -17,6 +17,8 @@
 # - 3.0 [Build the network](#network)
 # - 4.0 [Train the network](#train)
 
+#Akshay system: run this in coda hlcv
+
 
 # import utils and basic libraries
 import os
@@ -33,9 +35,9 @@ from zipfile import ZipFile
 
 
 # gpu settings (we strongly discouraged to run this notebook without an available GPU)
-gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[0], True)
+# gpus = tf.config.experimental.list_physical_devices('GPU')
+# tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
+# tf.config.experimental.set_memory_growth(gpus[0], True)
 
 
 #-------------
@@ -48,8 +50,8 @@ SCALE = 3 # upscale of the proba-v dataset is 3
 HR_SIZE = LR_SIZE * SCALE # upscale of the dataset is 3
 OVERLAP = 32 # overlap between pathces
 CLEAN_PATH_PX = 0.85 # percentage of clean pixels to accept a patch
-band = 'NIR' # choose the band for the training
-checkpoint_dir = f'ckpt/{band}_{name_net}_retrain' # weights path
+# band = 'NIR' # choose the band for the training
+checkpoint_dir = f'ckpt/{name_net}_retrain' # weights path
 log_dir = 'logs' # tensorboard logs path
 submission_dir = 'submission' # submission dir
 
@@ -72,14 +74,15 @@ if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
 # load training dataset
-X_train = np.load(os.path.join(PATH_DATASET, f'X_{band}_train.npy'))
-y_train = np.load(os.path.join(PATH_DATASET, f'y_{band}_train.npy'))
+X_train = np.load(os.path.join(PATH_DATASET, f'X_train.npy'))
+y_train = np.load(os.path.join(PATH_DATASET, f'y_train.npy'))
 # y_train_mask = np.load(os.path.join(PATH_DATASET, f'y_{band}_train_masks.npy'))
+y_train_mask = 
 
 
 # load validation dataset
-X_val = np.load(os.path.join(PATH_DATASET, f'X_{band}_val.npy'))
-y_val = np.load(os.path.join(PATH_DATASET, f'y_{band}_val.npy'))
+X_val = np.load(os.path.join(PATH_DATASET, f'X_val.npy'))
+y_val = np.load(os.path.join(PATH_DATASET, f'y_val.npy'))
 # y_val_mask = np.load(os.path.join(PATH_DATASET, f'y_{band}_val_masks.npy'))
 
 # print loaded dataset info
@@ -115,11 +118,11 @@ s = OVERLAP * SCALE  # overlapping patches
 # Ex: n = (384-d)/s+1 = 7 -> 49 sub images from each image
 
 y_train_patches = gen_sub(y_train,d,s)
-y_train_mask_patches = gen_sub(y_train_mask,d,s)
+# y_train_mask_patches = gen_sub(y_train_mask,d,s)
 
 
 y_val_patches = gen_sub(y_val,d,s)
-y_val_mask_patches = gen_sub(y_val_mask,d,s)
+# y_val_mask_patches = gen_sub(y_val_mask,d,s)
 
 
 # print first patch and check if LR is in accordance with HR
@@ -129,34 +132,11 @@ ax[1].imshow(y_train_patches[0,:,:,0], cmap = 'gray')
 
 
 # free up memory
-del X_train, y_train, y_train_mask
+# del X_train, y_train, y_train_mask
+del X_train, y_train
 
-del X_val, y_val, y_val_mask
-
-
-# ## 2.2 Clarity patches check
-
-# find patches indices with a lower percentage of clean pixels in train array
-patches_to_remove_train = [i for i,m in enumerate(y_train_mask_patches) if np.count_nonzero(m)/(HR_SIZE*HR_SIZE) < CLEAN_PATH_PX]
-
-
-# find patches indices with a lower percentage of clean pixels in validation array
-patches_to_remove_val = [i for i,m in enumerate(y_val_mask_patches) if np.count_nonzero(m)/(HR_SIZE*HR_SIZE) < CLEAN_PATH_PX]
-
-
-# print number of patches to be removed
-print(len(patches_to_remove_train))
-print(len(patches_to_remove_val))
-
-
-# remove patches not clean
-X_train_patches = np.delete(X_train_patches,patches_to_remove_train,axis=0)
-y_train_patches =  np.delete(y_train_patches,patches_to_remove_train,axis=0)
-y_train_mask_patches =  np.delete(y_train_mask_patches,patches_to_remove_train,axis=0)
-
-X_val_patches = np.delete(X_val_patches,patches_to_remove_val,axis=0)
-y_val_patches =  np.delete(y_val_patches,patches_to_remove_val,axis=0)
-y_val_mask_patches =  np.delete(y_val_mask_patches,patches_to_remove_val,axis=0)
+# del X_val, y_val, y_val_mask
+del X_val, y_val
 
 
 # build rams network
@@ -167,7 +147,7 @@ rams_network = RAMS(scale=SCALE, filters=FILTERS,
 # print architecture structure
 rams_network.summary(line_length=120)
 
-trainer_rams = Trainer(rams_network, band, HR_SIZE, name_net,
+trainer_rams = Trainer(rams_network, HR_SIZE, name_net,
                       loss=l1_loss,
                       metric=psnr,
                       optimizer=tf.keras.optimizers.Nadam(learning_rate=lr),

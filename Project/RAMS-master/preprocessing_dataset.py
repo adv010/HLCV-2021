@@ -56,11 +56,6 @@ print(f"Train scenes: {len(X_train)} | Train y shape: {y_train.shape}")
 
 # # 2.0 Dataset Pre-Processing
 
-#TODO: permute and select 9 images
-
-
-
-
 
 if train_full:
     X_train = np.concatenate((X_train, X_val))    
@@ -92,6 +87,8 @@ if not os.path.isdir(dataset_output_dir):
 # save training
 np.save(os.path.join(dataset_output_dir, 'X_train.npy'), X_train)
 np.save(os.path.join(dataset_output_dir, 'y_train.npy'), y_train)
+# np.save(os.path.join(dataset_output_dir, 'X_val.npy'), X_train)
+# np.save(os.path.join(dataset_output_dir, 'y_val.npy'), y_train)
 # np.save(os.path.join(dataset_output_dir, 'y_train_masks.npy'), y_train_masks)
 
 # # save validation
