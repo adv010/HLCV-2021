@@ -13,10 +13,10 @@ from tqdm.notebook import tqdm
 from scipy.ndimage import shift
 from skimage.transform import rescale
 from skimage.feature import masked_register_translation
+import random
 
 
-
-def load_dataset(base_dir, part, L):
+def load_dataset(base_dir, part, L, T):
     """
     Load the original proba-v dataset already splitted in train, validation and test
     
@@ -46,7 +46,16 @@ def load_dataset(base_dir, part, L):
     for scene_index in tqdm(range(int(len(LR_imgsets)/L))):
 
         #stack of images for one scene
-        LRs = LR_imgsets[scene_index*L:(scene_index+1)*L]
+
+        #shuffle the order of loading (since in the generated dataset, the first5 imgaes are from left view, and later 5 are from right)
+        #select T out of the L images 
+        indexing = list(range(L))
+        random.shuffle(indexing)
+        indexing = indexing[:T]
+        LRs = [LR_imgsets[scene_index*L+i] for i in indexing]
+        # print(len(LRs))
+
+        # LRs = LR_imgsets[scene_index*L:(scene_index+1)*L]
         # QMs = sorted(glob(imgset+"/QM*.png"))
         # T = len(LRs)
         
@@ -54,8 +63,7 @@ def load_dataset(base_dir, part, L):
         # QM = np.empty((128,128,T),dtype="bool")
         
         for instance_index,img in enumerate(LRs):
-            # if instance_index == 9:
-            #     break
+            # print(img)
             LR[...,instance_index] = cv2.imread(img,cv2.IMREAD_UNCHANGED)
         
         X.append(LR)

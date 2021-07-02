@@ -14,6 +14,8 @@
 # - 3.0 [Visualize the Pre-Processed Datataset](#visualize)
 # - 4.0 [Save dataset](#save)
 
+#Akshay system: run this in coda base
+
 
 # import utils and basic libraries
 # from preprocessing import load_dataset
@@ -37,17 +39,17 @@ train_full = False                   # train without a validation
 
 # train loading
 # X_train, X_train_masks, y_train, y_train_masks = load_dataset(base_dir=dataset_dir, part="train")
-X_train, y_train = load_dataset(base_dir=dataset_dir, part="toy_train", L=L)
+X_train, y_train = load_dataset(base_dir=dataset_dir, part="toy_train", L=L, T=T)
 print(f"Train scenes: {len(X_train)} | Train y shape: {y_train.shape}")
 
 # # validation loading
 # # X_val, X_RED_val_masks, y_val, y_RED_val_masks = load_dataset(base_dir=dataset_dir, part="val")
-# X_val, y_val = load_dataset(base_dir=dataset_dir, part="val", L=L)
+# X_val, y_val = load_dataset(base_dir=dataset_dir, part="val", L=L, T=T)
 # print(f"Val scenes: {len(X_val)} | Val RED y shape: {y_val.shape}")
 
 # # test loading
 # # X_test, X_RED_test_masks = load_dataset(base_dir=dataset_dir,part="test")
-# X_test, y_test = load_dataset(base_dir=dataset_dir,part="toy_train", L=L)
+# X_test, y_test = load_dataset(base_dir=dataset_dir,part="toy_train", L=L, T=T)
 # print(f"Test scenes: {len(X_test)} | Test y shape: {y_test.shape}")
 
 
@@ -76,11 +78,11 @@ index = 8
 fig = plt.figure(figsize=(8, 8))
 columns = 5
 rows = 2
-for i in range(L):
+for i in range(T):
     fig.add_subplot(rows, columns, i+1)
     plt.imshow(X_train[index][...,i], cmap = 'gray')
 # plt.show()
-plt.savefig('temp.png')
+plt.savefig(os.path.join(dataset_output_dir,'temp.png'))
 
 
 
