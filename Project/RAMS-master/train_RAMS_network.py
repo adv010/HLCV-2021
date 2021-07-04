@@ -43,7 +43,7 @@ from zipfile import ZipFile
 #-------------
 # General Settings
 #-------------
-PATH_DATASET = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
+PATH_DATASET = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
 name_net = 'RAMS' # name of the network
 LR_SIZE = 32 # pathces dimension
 SCALE = 3 # upscale of the proba-v dataset is 3
@@ -66,7 +66,7 @@ R = 8 # attention compression
 N = 12 # number of residual feature attention blocks
 lr = 1e-4 # learning rate (Nadam optimizer)
 BATCH_SIZE = 32 # batch size
-EPOCHS_N = 100 # number of epochs
+EPOCHS_N = 10 # number of epochs
 
 
 # create logs folder
@@ -77,23 +77,24 @@ if not os.path.exists(log_dir):
 X_train = np.load(os.path.join(PATH_DATASET, f'X_train.npy'))
 y_train = np.load(os.path.join(PATH_DATASET, f'y_train.npy'))
 # y_train_mask = np.load(os.path.join(PATH_DATASET, f'y_{band}_train_masks.npy'))
-y_train_mask = 
+y_train_mask =np.ones(y_train.shape)
 
 
 # load validation dataset
 X_val = np.load(os.path.join(PATH_DATASET, f'X_val.npy'))
 y_val = np.load(os.path.join(PATH_DATASET, f'y_val.npy'))
+y_val_mask =np.ones(y_val.shape)
 # y_val_mask = np.load(os.path.join(PATH_DATASET, f'y_{band}_val_masks.npy'))
 
 # print loaded dataset info
 print('X_train: ', X_train.shape)
 print('y_train: ', y_train.shape)
-# print('y_train_mask: ', y_train_mask.shape)
+print('y_train_mask: ', y_train_mask.shape)
 
 
 print('X_val: ', X_val.shape)
 print('y_val: ', y_val.shape)
-# print('y_val_mask: ', y_val_mask.shape)
+print('y_val_mask: ', y_val_mask.shape)
 
 
 # # 2.0 Dataset Pre-Processing
@@ -106,10 +107,10 @@ s = OVERLAP  # overlapping patches
 # Ex: n = (128-d)/s+1 = 7 -> 49 sub images from each image
 print(X_train.shape)
 print(X_train[...,0].shape)
-X_train_patches = gen_sub(X_train[...,0],d,s)
+X_train_patches = gen_sub(X_train,d,s)
 #X_train_patches = gen_sub(X_train,d,s)
-X_val_patches = gen_sub(X_val[...,0],d,s)
-#X_val_patches = gen_sub(X_val,d,s)
+#X_val_patches = gen_sub(X_val[...,0],d,s)
+X_val_patches = gen_sub(X_val,d,s)
 
 
 # create patches for HR images and masks
@@ -118,11 +119,9 @@ s = OVERLAP * SCALE  # overlapping patches
 # Ex: n = (384-d)/s+1 = 7 -> 49 sub images from each image
 
 y_train_patches = gen_sub(y_train,d,s)
-# y_train_mask_patches = gen_sub(y_train_mask,d,s)
-
-
+y_train_mask_patches = gen_sub(y_train_mask,d,s)
 y_val_patches = gen_sub(y_val,d,s)
-# y_val_mask_patches = gen_sub(y_val_mask,d,s)
+y_val_mask_patches = gen_sub(y_val_mask,d,s)
 
 
 # print first patch and check if LR is in accordance with HR
@@ -136,7 +135,7 @@ ax[1].imshow(y_train_patches[0,:,:,0], cmap = 'gray')
 del X_train, y_train
 
 # del X_val, y_val, y_val_mask
-del X_val, y_val
+#del X_val, y_val
 
 
 # build rams network
@@ -158,5 +157,5 @@ trainer_rams = Trainer(rams_network, HR_SIZE, name_net,
 trainer_rams.fit(X_train_patches,
                 [y_train_patches.astype('float32'), y_train_mask_patches], initial_epoch = 0,
                 batch_size=BATCH_SIZE, evaluate_every=400, data_aug = True, epochs=EPOCHS_N,
-                validation_data=(X_val_patches, [y_val_patches.astype('float32'), y_val_mask_patches])) 
+                validation_data=(X_val_patches, [y_val_patches.astype('float32'), y_val_mask_patches]))
 

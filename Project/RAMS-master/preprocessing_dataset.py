@@ -31,8 +31,8 @@ import matplotlib.pyplot as plt
 #-------------
 L = 10                               # number of temporal dimensions loaded
 T = 9                                # number of temporal dimensions to be used
-dataset_dir = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'          # input dir (train val and test splitted)
-dataset_output_dir = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'       # output dir
+dataset_dir = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'#'/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'          # input dir (train val and test splitted)
+dataset_output_dir = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'#'/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'       # output dir
 train_full = False                   # train without a validation
 
 
@@ -43,15 +43,17 @@ X_train, y_train = load_dataset(base_dir=dataset_dir, part="toy_train", L=L, T=T
 print(f"Train scenes: {len(X_train)} | Train y shape: {y_train.shape}")
 
 # # validation loading
+
+X_val, y_val = load_dataset(base_dir=dataset_dir, part="val", L=L, T=T)
 # # X_val, X_RED_val_masks, y_val, y_RED_val_masks = load_dataset(base_dir=dataset_dir, part="val")
 # X_val, y_val = load_dataset(base_dir=dataset_dir, part="val", L=L, T=T)
-# print(f"Val scenes: {len(X_val)} | Val RED y shape: {y_val.shape}")
+print(f"Val scenes: {len(X_val)} | Val RED y shape: {y_val.shape}")
 
 # # test loading
 # # X_test, X_RED_test_masks = load_dataset(base_dir=dataset_dir,part="test")
 # X_test, y_test = load_dataset(base_dir=dataset_dir,part="toy_train", L=L, T=T)
 # print(f"Test scenes: {len(X_test)} | Test y shape: {y_test.shape}")
-
+#print(X_train)
 
 
 # # 2.0 Dataset Pre-Processing
@@ -92,9 +94,9 @@ np.save(os.path.join(dataset_output_dir, 'y_train.npy'), y_train)
 # np.save(os.path.join(dataset_output_dir, 'y_train_masks.npy'), y_train_masks)
 
 # # save validation
-# if not train_full:
-#     np.save(os.path.join(dataset_output_dir, 'X_val.npy'), X_val)
-#     np.save(os.path.join(dataset_output_dir, 'y_val.npy'), y_val)
+if not train_full:
+    np.save(os.path.join(dataset_output_dir, 'X_val.npy'), X_val)
+    np.save(os.path.join(dataset_output_dir, 'y_val.npy'), y_val)
 #     # np.save(os.path.join(dataset_output_dir, 'y_RED_val_masks.npy'), y_RED_val_masks)
 
 # # save test
