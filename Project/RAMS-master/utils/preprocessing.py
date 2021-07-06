@@ -35,10 +35,14 @@ def load_dataset(base_dir, part, L, T):
     
     # X = []; X_masks = []; y = []; y_masks = []
     X = []
+    X_masks = []
     y = []
+    y_masks = []
 
     for gt in tqdm(HR_imgsets):
-        y.append(cv2.imread(gt,cv2.IMREAD_UNCHANGED)[...,None])
+        y_im = cv2.imread(gt,cv2.IMREAD_UNCHANGED)[...,None]
+        y.append(y_im)
+        y_masks.append(np.ones(y_im.shape))
         # y_masks.append(cv2.imread(imgset+"/SM.png",cv2.IMREAD_UNCHANGED).astype("bool")[...,None])
 
     # for imgset in tqdm(LR_imgsets):
@@ -59,19 +63,19 @@ def load_dataset(base_dir, part, L, T):
         # QMs = sorted(glob(imgset+"/QM*.png"))
         # T = len(LRs)
         
-        LR = np.empty((128,128,9),dtype="uint8")
-        # QM = np.empty((128,128,T),dtype="bool")
+        LR = np.empty((128,128,T),dtype="uint8")
+        QM = np.ones((128,128,T),dtype="bool")
         
         for instance_index,img in enumerate(LRs):
             # print(img)
             LR[...,instance_index] = cv2.imread(img,cv2.IMREAD_UNCHANGED)
         
         X.append(LR)
-        # X_masks.append(QM)
+        X_masks.append(QM)
         
     
-    return X,np.array(y)
-    # return X,X_masks,np.array(y),np.array(y_masks)
+    # return X,np.array(y)
+    return X,X_masks,np.array(y),np.array(y_masks)
 
 
 def augment_dataset(X, y, y_masks, n_augment=7):
@@ -168,12 +172,14 @@ def register_imgset(imgset, mask):
     for i in range(imgset.shape[-1]):
         x = imgset[...,i]; m = mask[...,i]
         s = masked_register_translation(ref, x, m)
+        # print(f"shift: {s}")
         x = shift(x, s, mode='reflect')
         m = shift(m, s, mode='constant', cval=0)
         imgset_reg[...,i] = x
         mask_reg[...,i] = m
         
-    return imgset,mask_reg
+    # return imgset,mask_reg
+    return imgset_reg, mask_reg
 
 
     

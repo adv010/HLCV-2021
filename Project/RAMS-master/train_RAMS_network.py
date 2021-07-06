@@ -43,7 +43,8 @@ from zipfile import ZipFile
 #-------------
 # General Settings
 #-------------
-PATH_DATASET = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
+PATH_DATASET = '../training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
+# PATH_DATASET = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
 name_net = 'RAMS' # name of the network
 LR_SIZE = 32 # pathces dimension
 SCALE = 3 # upscale of the proba-v dataset is 3
@@ -65,8 +66,8 @@ CHANNELS = 9 # number of temporal steps
 R = 8 # attention compression
 N = 12 # number of residual feature attention blocks
 lr = 1e-4 # learning rate (Nadam optimizer)
-BATCH_SIZE = 32 # batch size
-EPOCHS_N = 10 # number of epochs
+BATCH_SIZE = 4 #32 # batch size
+EPOCHS_N = 4 #10 # number of epochs
 
 
 # create logs folder
@@ -76,15 +77,15 @@ if not os.path.exists(log_dir):
 # load training dataset
 X_train = np.load(os.path.join(PATH_DATASET, f'X_train.npy'))
 y_train = np.load(os.path.join(PATH_DATASET, f'y_train.npy'))
-# y_train_mask = np.load(os.path.join(PATH_DATASET, f'y_{band}_train_masks.npy'))
-y_train_mask =np.ones(y_train.shape)
+y_train_mask = np.load(os.path.join(PATH_DATASET, f'y_train_masks.npy'))
+# y_train_mask =np.ones(y_train.shape)
 
 
 # load validation dataset
 X_val = np.load(os.path.join(PATH_DATASET, f'X_val.npy'))
 y_val = np.load(os.path.join(PATH_DATASET, f'y_val.npy'))
-y_val_mask =np.ones(y_val.shape)
-# y_val_mask = np.load(os.path.join(PATH_DATASET, f'y_{band}_val_masks.npy'))
+y_val_mask = np.load(os.path.join(PATH_DATASET, f'y_val_masks.npy'))
+# y_val_mask =np.ones(y_val.shape)
 
 # print loaded dataset info
 print('X_train: ', X_train.shape)

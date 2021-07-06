@@ -49,7 +49,8 @@ from zipfile import ZipFile
 #-------------
 # General Settings
 #-------------
-PATH_DATASET = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
+PATH_DATASET = '../training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
+# PATH_DATASET = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
 name_net = 'RAMS' # name of the network
 LR_SIZE = 128 # pathces dimension
 SCALE = 3 # upscale of the proba-v dataset is 3
@@ -57,7 +58,7 @@ HR_SIZE = LR_SIZE * SCALE # upscale of the dataset is 3
 OVERLAP = 32 # overlap between pathces
 # CLEAN_PATH_PX = 0.85 # percentage of clean pixels to accept a patch
 # band = 'NIR' # choose the band for the training
-checkpoint_dir = f'ckpt/{name_net}' # weights path
+checkpoint_dir = 'ckpt' # weights path
 log_dir = 'logs' # tensorboard logs path
 submission_dir = 'submission' # submission dir
 name_zip = 'submission_holopix.zip'
@@ -76,11 +77,16 @@ BATCH_SIZE = 8  #32 # batch size
 EPOCHS_N = 100 # number of epochs
 
 
+# create submission folder
+if not os.path.exists(submission_dir):
+    os.mkdir(submission_dir)
+
+
 # load validation 
 X_val = np.load(os.path.join(PATH_DATASET, f'X_val.npy'))
 y_val = np.load(os.path.join(PATH_DATASET, f'y_val.npy'))
-y_val_mask =np.ones(y_val.shape)
-# y_val_mask = np.load(os.path.join(PATH_DATASET, f'y_{band}_val_masks.npy'))
+y_val_mask = np.load(os.path.join(PATH_DATASET, f'y_val_masks.npy'))
+# y_val_mask =np.ones(y_val.shape)
 
 # print loaded dataset info
 print('X_val: ', X_val.shape)
@@ -90,14 +96,13 @@ print('y_val_mask: ', y_val_mask.shape)
 
 # load ESA test set (no ground truth)
 # X_test = np.load(os.path.join(PATH_DATASET, f'X_test.npy'))
-
-# print('X_test: ', X_test.shape)
 X_test = np.load(os.path.join(PATH_DATASET, f'X_train.npy')) # TODO : Replace with test.npy from Holopix50
+print('X_test: ', X_test.shape)
 
 
 # build rams network
 rams_network = RAMS(scale=SCALE, filters=FILTERS, kernel_size=KERNEL_SIZE, channels=CHANNELS, r=R, N=N)
-rams_network.summary(line_length=120) # for debug mode
+# rams_network.summary(line_length=120) # for debug mode
 
 # load weights from checkpoint_dir
 checkpoint = tf.train.Checkpoint(step=tf.Variable(0), psnr=tf.Variable(1.0), model=rams_network)
@@ -108,7 +113,8 @@ checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
 # ## 3.1 Qualitative results
 
 # print example images
-index = 1 # choose an image from validation set
+index = 0 # choose an image from validation set
+#TODO: making the index 1 results in different LR and HR scenes!
 
 x_pred = predict_tensor(rams_network, X_val[index:index+1])
 
@@ -121,7 +127,9 @@ ax[1,0].imshow(x_pred[0,:,:,0], cmap ='gray')
 ax[1,0].set_title('Prediction')
 ax[1,1].imshow(y_val[index,:,:,0], cmap = 'gray')
 ax[1,1].set_title('HR')
-fig.show()
+# fig.show()
+plt.savefig(os.path.join(submission_dir,'sample_prediction.png'))
+
 
 
 # ## 3.2 Compute RAMS cPSNR
@@ -134,15 +142,9 @@ for index in tqdm(range(X_val.shape[0])):
     x_pred = predict_tensor(rams_network, X_val[index:index+1])
     psnr_scores.append(psnr(y_val[index:index+1,:,:], x_pred, y_val_mask[index:index+1,:,:], HR_SIZE).numpy())
 
-
-# In[ ]:
-
-
 # print validation network cPSNR
 print(f'PSNR Validation Network: {np.mean(psnr_scores)}')
 
-
-# In[ ]:
 
 
 # compute cPSNR with bicubic interpolation
@@ -152,15 +154,9 @@ for index in tqdm(range(X_val.shape[0])):
     x_pred = bicubic(np.mean(X_val[index:index+1], axis=-1)[...,None])
     psnr_scores_bicubic.append(psnr(y_val[index:index+1,:,:], x_pred, y_val_mask[index:index+1,:,:], HR_SIZE).numpy())
 
-
-# In[ ]:
-
-
 # print validation bicubic cPSNR
 print(f'PSNR Validation Bicubic: {np.mean(psnr_scores_bicubic)}')
 
-
-# In[ ]:
 
 
 # show bicubic vs network comparison
@@ -184,9 +180,6 @@ ax.grid(color = 'gray',linestyle='dotted')
 
 # ## 3.3 Compute RAMS+ cPSNR
 
-# In[ ]:
-
-
 # compute Ensemble PSNR prediction
 psnr_scores_plus = []
 n_permut = 20 # number of permutations
@@ -195,18 +188,11 @@ for index in tqdm(range(X_val.shape[0])):
     x_pred = predict_tensor_permute(rams_network, X_val[index],n_ens=n_permut)
     psnr_scores_plus.append(psnr(y_val[index:index+1,:,:], x_pred, y_val_mask[index:index+1,:,:], HR_SIZE).numpy())
 
-
-# In[ ]:
-
-
 # print validation Ensamble cPSNR
 print(f'PSNR Validation Ensamble: {np.mean(psnr_scores_plus)}')
 
 
-# ## 3.4 Compute RAMS SSIM
-
-# In[ ]:
-
+## 3.4 Compute RAMS SSIM
 
 # compute SSIM with trained network
 ssim_scores = []
@@ -215,18 +201,11 @@ for index in tqdm(range(X_val.shape[0])):
     x_pred = predict_tensor(rams_network, X_val[index:index+1])
     ssim_scores.append(ssim(y_val[index:index+1,:,:], x_pred, y_val_mask[index:index+1,:,:], HR_SIZE).numpy())
 
-
-# In[ ]:
-
-
 # print validation network SSIM
 print(f'SSIM Validation Network: {np.mean(ssim_scores)}')
 
 
 # ## 3.5 Computer RAMS+ SSIM
-
-# In[ ]:
-
 
 # compute Ensemble SSIM prediction
 ssim_scores_ens = []
@@ -236,40 +215,14 @@ for index in tqdm(range(X_val.shape[0])):
     x_pred = predict_tensor_permute(rams_network, X_val[index],n_ens=n_permut)
     ssim_scores_ens.append(ssim(y_val[index:index+1,:,:], x_pred, y_val_mask[index:index+1,:,:], HR_SIZE).numpy())
 
-
-# In[ ]:
-
-
 # print validation Ensamble SSIM
 print(f'PSNR Validation: {np.mean(ssim_scores_ens)}')
 
 
-# <a id="proba"></a>
-# # 4.0 Predict Proba-V Test Set
-
-# In[ ]:
-
-
-# create submission folder
-if not os.path.exists(submission_dir):
-    os.mkdir(submission_dir)
-
-
 # ## 4.1 RAMS prediction
 
-# In[ ]:
-
-
-X_val.shape
-
-
-# In[ ]:
-
-
-X_test.shape
-
-
-# In[ ]:
+# X_val.shape
+# X_test.shape
 
 
 # predict proba-v test set with RAMS
@@ -279,15 +232,10 @@ for index in tqdm(range(X_test.shape[0])):
     X_preds.append(predict_tensor(rams_network, X_test[index:index+1]))
 
 
-# In[ ]:
-
-
 savePredictions(X_preds, submission_dir)
 
 
 # 4.2 RAMS+ prediction
-
-
 
 # predict proba-v test set with RAMS+
 X_preds = []
@@ -305,10 +253,10 @@ savePredictionsPermut(X_preds, submission_dir)
 
 
 # zip creation
-zf = ZipFile(name_zip, mode='w')
-with tqdm(total=290, desc="Zipping images") as pbar:
-    for i, img in enumerate(sorted(os.listdir(submission_dir))):
-        zf.write(os.path.join(submission_dir, img), arcname=img)
-        pbar.update(1)
-zf.close()
-print('Done!')
+# zf = ZipFile(name_zip, mode='w')
+# with tqdm(total=290, desc="Zipping images") as pbar:
+#     for i, img in enumerate(sorted(os.listdir(submission_dir))):
+#         zf.write(os.path.join(submission_dir, img), arcname=img)
+#         pbar.update(1)
+# zf.close()
+# print('Done!')
