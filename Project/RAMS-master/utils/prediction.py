@@ -97,26 +97,31 @@ def predict_tensor_permute(model, x, n_ens=10):
     sr_batch = tf.cast(sr_batch, tf.float32)
     return np.mean(sr_batch.numpy(),axis=0,keepdims=True)
 
-def savePredictions(x, band, submission_dir):
+def savePredictions(x,submission_dir):
     """RAMS save util"""
-    if band == 'NIR':
-        i = 1306
-    elif band=='RED':
-        i = 1160
-        
+    #if band == 'NIR':
+        #i = 1306
+    #elif band=='RED':
+        #i = 1160
+    i= 0 # TODO : check indexing
     for index in range(len(x)):
-        io.imsave(os.path.join(submission_dir, f'imgset{i}.png'), x[index][0,:,:,0].numpy().astype(np.uint16),
+        io.imsave(os.path.join(submission_dir, f'image{i}.png'), x[index][0,:,:,0].numpy().astype(np.uint16),
                   check_contrast=False)
+        #io.imsave(os.path.join(submission_dir, f'imgset{i}.jpg'), x[index][0,:,:,0].numpy().astype(np.uint16),
+         #         check_contrast=False)
         i+=1
 
-def savePredictionsPermut(x, band, submission_dir):
+def savePredictionsPermut(x, submission_dir): #TODO : For RAMS+ performance, are we going to check this for Holopix?
     """RAMS+ save util"""
-    if band == 'NIR':
-        i = 1306
-    elif band=='RED':
-        i = 1160
-        
+    #if band == 'NIR':
+        #i = 1306
+    #elif band=='RED':
+        #i = 1160
+    i=0  # TODO : check indexing
+    
     for index in range(len(x)):
-        io.imsave(os.path.join(submission_dir, f'imgset{i}.png'), x[index][0,:,:,0].astype(np.uint16),
+        #io.imsave(os.path.join(submission_dir, f'imgset{i}.png'), x[index][0,:,:,0].astype(np.uint16),
+         #         check_contrast=False)
+        io.imsave(os.path.join(submission_dir, f'image{i}.jpg'), x[index][0,:,:,0].astype(np.uint16),
                   check_contrast=False)
         i+=1

@@ -49,7 +49,7 @@ from zipfile import ZipFile
 #-------------
 # General Settings
 #-------------
-PATH_DATASET = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
+PATH_DATASET = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
 name_net = 'RAMS' # name of the network
 LR_SIZE = 128 # pathces dimension
 SCALE = 3 # upscale of the proba-v dataset is 3
@@ -60,7 +60,7 @@ OVERLAP = 32 # overlap between pathces
 checkpoint_dir = f'ckpt/{name_net}' # weights path
 log_dir = 'logs' # tensorboard logs path
 submission_dir = 'submission' # submission dir
-name_zip = 'submission_RAMS.zip'
+name_zip = 'submission_holopix.zip'
 
 
 #-------------
@@ -79,24 +79,25 @@ EPOCHS_N = 100 # number of epochs
 # load validation 
 X_val = np.load(os.path.join(PATH_DATASET, f'X_val.npy'))
 y_val = np.load(os.path.join(PATH_DATASET, f'y_val.npy'))
+y_val_mask =np.ones(y_val.shape)
 # y_val_mask = np.load(os.path.join(PATH_DATASET, f'y_{band}_val_masks.npy'))
 
 # print loaded dataset info
 print('X_val: ', X_val.shape)
 print('y_val: ', y_val.shape)
-# print('y_val_mask: ', y_val_mask.shape)
+print('y_val_mask: ', y_val_mask.shape)
 
 
 # load ESA test set (no ground truth)
 # X_test = np.load(os.path.join(PATH_DATASET, f'X_test.npy'))
 
 # print('X_test: ', X_test.shape)
-
+X_test = np.load(os.path.join(PATH_DATASET, f'X_train.npy')) # TODO : Replace with test.npy from Holopix50
 
 
 # build rams network
 rams_network = RAMS(scale=SCALE, filters=FILTERS, kernel_size=KERNEL_SIZE, channels=CHANNELS, r=R, N=N)
-
+rams_network.summary(line_length=120) # for debug mode
 
 # load weights from checkpoint_dir
 checkpoint = tf.train.Checkpoint(step=tf.Variable(0), psnr=tf.Variable(1.0), model=rams_network)
@@ -107,7 +108,7 @@ checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
 # ## 3.1 Qualitative results
 
 # print example images
-index = 15 # choose an image from validation set
+index = 1 # choose an image from validation set
 
 x_pred = predict_tensor(rams_network, X_val[index:index+1])
 
@@ -281,7 +282,7 @@ for index in tqdm(range(X_test.shape[0])):
 # In[ ]:
 
 
-savePredictions(X_preds, band, submission_dir)
+savePredictions(X_preds, submission_dir)
 
 
 # 4.2 RAMS+ prediction
@@ -297,7 +298,7 @@ for index in tqdm(range(X_test.shape[0])):
 
 
 # save predictions in submission_dir
-savePredictionsPermut(X_preds, band, submission_dir)
+savePredictionsPermut(X_preds, submission_dir)
 
 
 # ## 4.3 Submission zip creation
