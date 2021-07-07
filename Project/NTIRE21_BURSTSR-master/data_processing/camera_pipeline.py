@@ -192,7 +192,7 @@ def random_noise_levels():
     shot_noise = math.exp(log_shot_noise)
 
     line = lambda x: 2.18 * x + 1.20
-    log_read_noise = line(log_shot_noise) + random.gauss(mu=0.0, sigma=0.26)
+    log_read_noise = line(log_shot_noise) + random.gauss(mu=0.0, sigma=0.1)
     read_noise = math.exp(log_read_noise)
     return shot_noise, read_noise
 

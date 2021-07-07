@@ -22,11 +22,11 @@ class SyntheticBurst(torch.utils.data.Dataset):
         self.image_pair = image_pair
 
         self.downsample_factor = 3
-        self.burst_transformation_params = {'max_translation': 24.0,
+        self.burst_transformation_params = {'max_translation': 6.0,
                                             'max_rotation': 1.0,
                                             'max_shear': 0.0,
                                             'max_scale': 0.0,
-                                            'border_crop': 24}
+                                            'border_crop': 6}
 
         #As a simplification, we do not apply any colour transformations :Akshay
         #Also, to bypass a some shape errors, I have commented all the corresponding functions in data_processing/synthetic_burst_generation.py

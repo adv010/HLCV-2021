@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 inputPath = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k/'
-outputPath = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale/'
+outputPath = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale2/'
 lrOutputPath = join(outputPath, 'burst')
 hrOutputPath = join(outputPath, 'gt')
 Path(lrOutputPath).mkdir(parents=True, exist_ok=True)
