@@ -36,6 +36,7 @@ from utils.prediction import ensemble, unensemble, shuffle_last_axis, predict_te
 from utils.network import RAMS
 from utils.training import Trainer
 from skimage import io
+from skimage.transform import rescale
 from zipfile import ZipFile
 
 
@@ -113,15 +114,18 @@ checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
 # ## 3.1 Qualitative results
 
 # print example images
-index = 0 # choose an image from validation set
+index = 1 # choose an image from validation set
 #TODO: making the index 1 results in different LR and HR scenes!
 
 x_pred = predict_tensor(rams_network, X_val[index:index+1])
 
+bicubic_interpolated = rescale(X_val[index,:,:,0],scale=SCALE,order=3,mode='edge', anti_aliasing=False, multichannel=False, preserve_range=True) #bicubic
+
 fig, ax = plt.subplots(2,2, figsize=(15,15))
 ax[0,0].imshow(X_val[index,:,:,0], cmap = 'gray')
 ax[0,0].set_title('LR')
-ax[0,1].imshow(bicubic(np.mean(X_val[index:index+1], axis=-1)[...,None])[0,:,:,0], cmap ='gray')
+# ax[0,1].imshow(bicubic(np.mean(X_val[index:index+1], axis=-1)[...,None])[0,:,:,0], cmap ='gray')
+ax[0,1].imshow(bicubic_interpolated, cmap ='gray')
 ax[0,1].set_title('Bicubic')
 ax[1,0].imshow(x_pred[0,:,:,0], cmap ='gray')
 ax[1,0].set_title('Prediction')
