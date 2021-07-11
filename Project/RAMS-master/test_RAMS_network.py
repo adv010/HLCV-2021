@@ -41,10 +41,10 @@ from zipfile import ZipFile
 
 
 # gpu setting (we strongly discouraged to run this notebook without an available GPU)
-# gpus = tf.config.experimental.list_physical_devices('GPU')
-# tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
-# tf.config.experimental.set_memory_growth(gpus[0], True)
-# tf.random.set_seed(42)
+gpus = tf.config.experimental.list_physical_devices('GPU')
+tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[0], True)
+tf.random.set_seed(42)
 
 
 #-------------

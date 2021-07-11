@@ -35,13 +35,13 @@ from zipfile import ZipFile
 import pathlib
 
 # gpu settings (we strongly discouraged to run this notebook without an available GPU)
-# gpus = tf.config.experimental.list_physical_devices('GPU')
-# tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
-# tf.config.experimental.set_memory_growth(gpus[0], True)
+gpus = tf.config.experimental.list_physical_devices('GPU')
+tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[0], True)
 
 print(os.system("ls"))
 
-exp_name = "trial2"
+exp_name = "trial3"
 
 
 #-------------
@@ -97,7 +97,8 @@ print('X_train: ', X_train.shape)
 print('y_train: ', y_train.shape)
 print('y_train_mask: ', y_train_mask.shape)
 
-
+print(y_train)
+print(y_val)
 print('X_val: ', X_val.shape)
 print('y_val: ', y_val.shape)
 print('y_val_mask: ', y_val_mask.shape)
