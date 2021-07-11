@@ -1,0 +1,19 @@
+universe                = docker
+docker_image            = adv010/misr_tf:v2
+executable              = train_RAMS_network.py
+output                  = rams_train.out
+error                   = rams_train.err
+log                     = rams_train.log
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+
+transfer_input_files = utils/,../training_datasets/Holopix50k_burst/grayscale2_testOnly/npy_files/ 
+transfer_output_files = logs, ckpt
+
+request_GPUs = 1
+request_CPUs = 1
+request_memory = 2G
+requirements = UidDomain == "cs.uni-saarland.de" 
++WantGPUHomeMounted = true
+queue 1
+
