@@ -15,6 +15,13 @@ from skimage.transform import rescale
 from skimage.feature import masked_register_translation
 import random
 
+import re
+
+def natural_key(string_):
+    """See https://blog.codinghorror.com/sorting-for-humans-natural-sort-order/"""
+    return [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]
+
+
 
 def load_dataset(base_dir, part, L, T):
     """
@@ -27,8 +34,8 @@ def load_dataset(base_dir, part, L, T):
     part: str
         'train', 'val' or test string
     """
-    LR_imgsets = sorted(glob(base_dir+"/"+part+"/burst/*.jpg"))
-    HR_imgsets = sorted(glob(base_dir+"/"+part+"/gt/*.jpg"))
+    LR_imgsets = sorted(glob(base_dir+"/"+part+"/burst/*.jpg"), key = natural_key)
+    HR_imgsets = sorted(glob(base_dir+"/"+part+"/gt/*.jpg"), key = natural_key)
 
     # print(HR_imgsets)
     # print(LR_imgsets)
