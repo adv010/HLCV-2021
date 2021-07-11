@@ -265,7 +265,7 @@ def gen_sub(array,d,s,verbose=True):
     verbose: bool
         print output info
     """
-    if len(array.shape) != 4: raise ValueError("Wrong array shape.")
+    #if len(array.shape) != 4: raise ValueError("Wrong array shape.")
     
     l = len(array)
     d_o = array.shape[1]

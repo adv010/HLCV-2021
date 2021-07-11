@@ -26,24 +26,28 @@ from tqdm.notebook import tqdm
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from utils.preprocessing import gen_sub, bicubic
-from utils.loss import l1_loss, psnr, ssim
-from utils.network import RAMS
-from utils.training import Trainer
+from preprocessing import gen_sub, bicubic
+from loss import l1_loss, psnr, ssim
+from network import RAMS
+from training import Trainer
 from skimage import io
 from zipfile import ZipFile
-
+import pathlib
 
 # gpu settings (we strongly discouraged to run this notebook without an available GPU)
 # gpus = tf.config.experimental.list_physical_devices('GPU')
 # tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
 # tf.config.experimental.set_memory_growth(gpus[0], True)
 
+print(os.system("ls"))
+
+exp_name = "trial2"
+
 
 #-------------
 # General Settings
 #-------------
-PATH_DATASET = '../training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
+PATH_DATASET = os.getcwd() #'../training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
 # PATH_DATASET = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
 name_net = 'RAMS' # name of the network
 LR_SIZE = 32 # pathces dimension
@@ -52,8 +56,8 @@ HR_SIZE = LR_SIZE * SCALE # upscale of the dataset is 3
 OVERLAP = 32 # overlap between pathces
 CLEAN_PATH_PX = 0.85 # percentage of clean pixels to accept a patch
 # band = 'NIR' # choose the band for the training
-checkpoint_dir = f'ckpt/{name_net}_retrain' # weights path
-log_dir = 'logs' # tensorboard logs path
+checkpoint_dir = f'ckpt/{exp_name}' # weights path
+log_dir = f'logs/{exp_name}' # tensorboard logs path
 submission_dir = 'submission' # submission dir
 
 
@@ -66,14 +70,15 @@ CHANNELS = 9 # number of temporal steps
 R = 8 # attention compression
 N = 12 # number of residual feature attention blocks
 lr = 1e-4 # learning rate (Nadam optimizer)
-BATCH_SIZE = 4 #32 # batch size
-EPOCHS_N = 4 #10 # number of epochs
+BATCH_SIZE = 32 # batch size
+EPOCHS_N = 4 # number of epochs
 
 
 # create logs folder
-if not os.path.exists(log_dir):
-    os.mkdir(log_dir)
-
+#if not os.path.exists(log_dir):
+    #os.mkdir(log_dir)
+pathlib.Path(checkpoint_dir).mkdir(parents=True,exist_ok=True)
+pathlib.Path(log_dir).mkdir(parents=True, exist_ok=True)
 # load training dataset
 X_train = np.load(os.path.join(PATH_DATASET, f'X_train.npy'))
 y_train = np.load(os.path.join(PATH_DATASET, f'y_train.npy'))
@@ -106,12 +111,15 @@ print('y_val_mask: ', y_val_mask.shape)
 d = LR_SIZE  # 32x32 patches
 s = OVERLAP  # overlapping patches
 # Ex: n = (128-d)/s+1 = 7 -> 49 sub images from each image
-print(X_train.shape)
-print(X_train[...,0].shape)
-X_train_patches = gen_sub(X_train,d,s)
+print('X_train[...,0]', X_train[...,0].shape)
 #X_train_patches = gen_sub(X_train,d,s)
-#X_val_patches = gen_sub(X_val[...,0],d,s)
+X_train_patches = gen_sub(X_train,d,s)
+print("X_train_patches")
+print(X_train_patches.shape)
 X_val_patches = gen_sub(X_val,d,s)
+print("X_val_patches")
+print(X_val_patches.shape)
+#X_val_patches = gen_sub(X_val,d,s)
 
 
 # create patches for HR images and masks
@@ -120,10 +128,17 @@ s = OVERLAP * SCALE  # overlapping patches
 # Ex: n = (384-d)/s+1 = 7 -> 49 sub images from each image
 
 y_train_patches = gen_sub(y_train,d,s)
+print("y_train_patches")
+print(y_train_patches.shape)
 y_train_mask_patches = gen_sub(y_train_mask,d,s)
+print("y_train_mask_patches")
+print(y_train_mask_patches.shape)
 y_val_patches = gen_sub(y_val,d,s)
+print("y_val_patches")
+print(y_val_patches.shape)
 y_val_mask_patches = gen_sub(y_val_mask,d,s)
-
+print("y_val_mask_patches")
+print(y_val_mask_patches.shape)
 
 # print first patch and check if LR is in accordance with HR
 fig, ax = plt.subplots(1,2, figsize=(10,10))
@@ -136,7 +151,7 @@ ax[1].imshow(y_train_patches[0,:,:,0], cmap = 'gray')
 del X_train, y_train
 
 # del X_val, y_val, y_val_mask
-#del X_val, y_val
+del X_val, y_val
 
 
 # build rams network

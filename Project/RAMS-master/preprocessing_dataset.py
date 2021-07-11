@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # # Preprocessing the Proba-V Dataset
 # ![proba_v_dataset](media/proba_v_dataset.jpg "Logo Title Text 1")
 # 
@@ -18,20 +19,21 @@
 
 
 # import utils and basic libraries
-from utils.preprocessing import load_dataset, register_dataset
+from preprocessing import load_dataset, register_dataset
 import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-
+output = os.system("ls")
+print(output) 
 
 #-------------
 # Settings
 #-------------
 L = 10                               # number of temporal dimensions loaded
 T = 9                                # number of temporal dimensions to be used
-dataset_dir = '../training_datasets/Holopix50k_burst/grayscale'          # input dir (train val and test splitted)
-dataset_output_dir = '../training_datasets/Holopix50k_burst/grayscale'       # output dir
+dataset_dir = 'Holopix50k_burst/grayscale2'          # input dir (train val and test splitted)
+dataset_output_dir = 'Holopix50k_burst/grayscale2/output/'       # output dir
 # dataset_dir = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'#'/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'          # input dir (train val and test splitted)
 # dataset_output_dir = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'#'/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'       # output dir
 train_full = False                   # train without a validation
@@ -42,21 +44,21 @@ if not os.path.isdir(dataset_output_dir):
 
 
 # train loading
-X_train, X_train_masks, y_train, y_train_masks = load_dataset(base_dir=dataset_dir, part="toy_train", L=L, T=T)
+X_train, X_train_masks, y_train, y_train_masks = load_dataset(base_dir=dataset_dir, part="train", L=L, T=T)
 # X_train, y_train = load_dataset(base_dir=dataset_dir, part="toy_train", L=L, T=T)
 print(f"Train scenes: {len(X_train)} | Train y shape: {y_train.shape}")
 print(f"Train single scene shape: {X_train[0].shape}")
 
 
 # validation loading
-X_val, X_val_masks, y_val, y_val_masks = load_dataset(base_dir=dataset_dir, part="toy_val", L=L, T=T)
+X_val, X_val_masks, y_val, y_val_masks = load_dataset(base_dir=dataset_dir, part="val", L=L, T=T)
 # X_val, y_val = load_dataset(base_dir=dataset_dir, part="toy_val", L=L, T=T)
 print(f"Val scenes: {len(X_val)} | Val RED y shape: {y_val.shape}")
 
 # test loading
 # X_test, X_RED_test_masks = load_dataset(base_dir=dataset_dir,part="test")
-# X_test, y_test = load_dataset(base_dir=dataset_dir,part="toy_train", L=L, T=T)
-# print(f"Test scenes: {len(X_test)} | Test y shape: {y_test.shape}")
+X_test, X_test_masks,y_test,_ = load_dataset(base_dir=dataset_dir,part="test", L=L, T=T)
+print(f"Test scenes: {len(X_test)} | Test y shape: {y_test.shape}")
 # print(X_train)
 
 
@@ -82,7 +84,7 @@ X_train, X_train_masks = register_dataset(X_train, X_train_masks)
 X_val, X_val_masks = register_dataset(X_val, X_val_masks)
 
 # test registration
-# X_test, X_test_masks = register_dataset(X_test, X_test_masks)
+X_test, X_test_masks = register_dataset(X_test, X_test_masks)
 
 
 
@@ -119,5 +121,11 @@ if not train_full:
     np.save(os.path.join(dataset_output_dir, 'y_val.npy'), y_val)
     np.save(os.path.join(dataset_output_dir, 'y_val_masks.npy'), y_val_masks)
 
+print("saved train and val npy files")
+
+
 # # save test
-# np.save(os.path.join(dataset_output_dir, 'X_test.npy'), X_test)
+np.save(os.path.join(dataset_output_dir, 'X_test.npy'), X_test)
+
+output = os.system("ls")
+print(output)
