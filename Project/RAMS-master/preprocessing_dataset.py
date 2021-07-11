@@ -23,41 +23,38 @@ from preprocessing import load_dataset, register_dataset
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+import pathlib
 
-output = os.system("ls")
-print(output) 
 
 #-------------
 # Settings
 #-------------
 L = 10                               # number of temporal dimensions loaded
 T = 9                                # number of temporal dimensions to be used
-dataset_dir = 'Holopix50k_burst/grayscale2'          # input dir (train val and test splitted)
-dataset_output_dir = 'Holopix50k_burst/grayscale2/output/'       # output dir
+dataset_dir = os.getcwd()          # input dir (train val and test splitted)
+dataset_output_dir = 'Holopix50k_burst/grayscale2/output'       # output dir
 # dataset_dir = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'#'/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'          # input dir (train val and test splitted)
 # dataset_output_dir = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'#'/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'       # output dir
 train_full = False                   # train without a validation
 
-if not os.path.isdir(dataset_output_dir):
-    os.mkdir(dataset_output_dir)
+pathlib.Path(dataset_output_dir).mkdir(parents=True,exist_ok=True)
+#if not os.path.isdir(dataset_output_dir):
+#   os.mkdir(dataset_output_dir)
 
 
 
 # train loading
 X_train, X_train_masks, y_train, y_train_masks = load_dataset(base_dir=dataset_dir, part="train", L=L, T=T)
-# X_train, y_train = load_dataset(base_dir=dataset_dir, part="toy_train", L=L, T=T)
 print(f"Train scenes: {len(X_train)} | Train y shape: {y_train.shape}")
 print(f"Train single scene shape: {X_train[0].shape}")
 
 
 # validation loading
 X_val, X_val_masks, y_val, y_val_masks = load_dataset(base_dir=dataset_dir, part="val", L=L, T=T)
-# X_val, y_val = load_dataset(base_dir=dataset_dir, part="toy_val", L=L, T=T)
 print(f"Val scenes: {len(X_val)} | Val RED y shape: {y_val.shape}")
 
 # test loading
-# X_test, X_RED_test_masks = load_dataset(base_dir=dataset_dir,part="test")
-X_test, X_test_masks,y_test,_ = load_dataset(base_dir=dataset_dir,part="test", L=L, T=T)
+X_test, X_test_masks, y_test, y_test_masks = load_dataset(base_dir=dataset_dir,part="test", L=L, T=T)
 print(f"Test scenes: {len(X_test)} | Test y shape: {y_test.shape}")
 # print(X_train)
 
@@ -126,6 +123,7 @@ print("saved train and val npy files")
 
 # # save test
 np.save(os.path.join(dataset_output_dir, 'X_test.npy'), X_test)
+np.save(os.path.join(dataset_output_dir, 'y_test.npy'), y_test)
+np.save(os.path.join(dataset_output_dir, 'y_test_masks.npy'), y_test_masks)
 
-output = os.system("ls")
-print(output)
+

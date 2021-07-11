@@ -39,9 +39,9 @@ gpus = tf.config.experimental.list_physical_devices('GPU')
 tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
 tf.config.experimental.set_memory_growth(gpus[0], True)
 
-print(os.system("ls"))
+#print(os.system("ls"))
 
-exp_name = "trial3"
+exp_name = "trial_temp"
 
 
 #-------------
@@ -171,8 +171,13 @@ trainer_rams = Trainer(rams_network, HR_SIZE, name_net,
                       log_dir=log_dir)
 
 
+#trainer_rams.fit(X_train_patches,
+#                [y_train_patches.astype('float32'), y_train_mask_patches], initial_epoch = 0,
+#                batch_size=BATCH_SIZE, evaluate_every=400, data_aug = True, epochs=EPOCHS_N,
+#                validation_data=(X_val_patches, [y_val_patches.astype('float32'), y_val_mask_patches]))
+
 trainer_rams.fit(X_train_patches,
                 [y_train_patches.astype('float32'), y_train_mask_patches], initial_epoch = 0,
-                batch_size=BATCH_SIZE, evaluate_every=400, data_aug = True, epochs=EPOCHS_N,
+                batch_size=BATCH_SIZE, evaluate_every=100, data_aug = True, epochs=EPOCHS_N,
                 validation_data=(X_val_patches, [y_val_patches.astype('float32'), y_val_mask_patches]))
 

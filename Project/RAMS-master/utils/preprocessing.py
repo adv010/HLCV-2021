@@ -49,7 +49,7 @@ def load_dataset(base_dir, part, L, T):
     for gt in tqdm(HR_imgsets):
         y_im = cv2.imread(gt,cv2.IMREAD_UNCHANGED)[...,None]
         y.append(y_im)
-        y_masks.append(np.ones(y_im.shape))
+        y_masks.append(np.ones(y_im.shape, dtype="bool"))
         # y_masks.append(cv2.imread(imgset+"/SM.png",cv2.IMREAD_UNCHANGED).astype("bool")[...,None])
 
     # for imgset in tqdm(LR_imgsets):
