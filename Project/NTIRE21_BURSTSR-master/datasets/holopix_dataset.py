@@ -5,7 +5,7 @@ from os.path import isfile, join
 import numpy as np
 
 class HolopixDataset(torch.utils.data.Dataset):
-    def __init__(self, root, split='train', image_pair=True):
+    def __init__(self, root, split='train', image_pair=True, sceneSampling=None):
         super().__init__()
 
         if split in ['train', 'val', 'test']:
@@ -17,15 +17,25 @@ class HolopixDataset(torch.utils.data.Dataset):
             raise Exception('Unknown split {}'.format(split))
 
         self.image_pair = image_pair
+        self.sceneSampling = sceneSampling
         self.image_list = self._get_image_list()
 
     def _get_image_list(self):
         if self.image_pair:
             image_list1 = [f for f in sorted(listdir(self.img_pth[0])) if isfile(join(self.img_pth[0], f))]
             image_list2 = [f for f in sorted(listdir(self.img_pth[1])) if isfile(join(self.img_pth[1], f))]
+
+            if self.sceneSampling is not None:
+                image_list1 = image_list1[:self.sceneSampling]
+                image_list2 = image_list2[:self.sceneSampling]
+
             image_list = [image_list1, image_list2]
         else:
             image_list = [f for f in listdir(self.img_pth) if isfile(join(self.img_pth, f))]
+
+            if self.sceneSampling is not None:
+                image_list = image_list[:self.sceneSampling]
+
         return image_list
 
     def _get_image(self, im_id):
