@@ -9,18 +9,19 @@ from pathlib import Path
 
 
 inputPath = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k/'
-outputPath = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale2/'
+outputPath = '/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/rgb/'
 lrOutputPath = join(outputPath, 'burst')
 hrOutputPath = join(outputPath, 'gt')
 Path(lrOutputPath).mkdir(parents=True, exist_ok=True)
 Path(hrOutputPath).mkdir(parents=True, exist_ok=True)
 
-grayscale = True
+grayscale = False
 augmentImagePair = True
 
 # print("HERE: 0")
 #read the images
-holopix_dataset = HolopixDataset(root=inputPath, split='test', image_pair=augmentImagePair)
+#sceneSampling means select first n scenes for the script
+holopix_dataset = HolopixDataset(root=inputPath, split='test', image_pair=augmentImagePair, sceneSampling=1000)
 
 # print("HERE: 1")
 #process the image

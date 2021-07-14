@@ -34,11 +34,34 @@ def load_dataset(base_dir, part, L, T):
     part: str
         'train', 'val' or test string
     """
-    LR_imgsets = sorted(glob(base_dir+"/"+part+"/burst/*.jpg"), key = natural_key)
-    HR_imgsets = sorted(glob(base_dir+"/"+part+"/gt/*.jpg"), key = natural_key)
+    # LR_imgsets = sorted(glob(base_dir+"/"+part+"/burst/*.jpg"), key = natural_key)
+    # HR_imgsets = sorted(glob(base_dir+"/"+part+"/gt/*.jpg"), key = natural_key)
+    
+    LR_imgsets = []
+    HR_imgsets = []
 
-    # print(HR_imgsets)
-    # print(LR_imgsets)
+    if part == "train":
+        for i in range(3800):
+            HR_imgsets.append(f"{base_dir}/{part}/gt/image{i}.jpg")
+            for j in range(10):
+                LR_imgsets.append(f"{base_dir}/{part}/burst/image{i}_instance{j}.jpg")
+    elif part == "val":
+        for i in range(1200):
+            HR_imgsets.append(f"{base_dir}/{part}/gt/image{i}.jpg")
+            for j in range(10):
+                LR_imgsets.append(f"{base_dir}/{part}/burst/image{i}_instance{j}.jpg")
+    elif part == "test":
+        for i in range(1000):
+            HR_imgsets.append(f"{base_dir}/{part}/gt/image{i}.jpg")
+            for j in range(10):
+                LR_imgsets.append(f"{base_dir}/{part}/burst/image{i}_instance{j}.jpg")
+    else:
+        print(f"Unrecognised data partition: {part}")
+        return
+
+
+    print(f"HR_imgsets array length: {len(HR_imgsets)}")
+    print(f"LR_imgsets array length: {len(LR_imgsets)}")
     
     # X = []; X_masks = []; y = []; y_masks = []
     X = []

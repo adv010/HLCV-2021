@@ -19,7 +19,8 @@
 
 
 # import utils and basic libraries
-from preprocessing import load_dataset, register_dataset
+# from preprocessing import load_dataset, register_dataset
+from utils.preprocessing import load_dataset, register_dataset
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -31,99 +32,102 @@ import pathlib
 #-------------
 L = 10                               # number of temporal dimensions loaded
 T = 9                                # number of temporal dimensions to be used
-dataset_dir = os.getcwd()          # input dir (train val and test splitted)
-dataset_output_dir = 'Holopix50k_burst/grayscale2/output'       # output dir
-# dataset_dir = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'#'/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'          # input dir (train val and test splitted)
-# dataset_output_dir = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'#'/media/akshay/akshay_HDD/saarland/sem2/HLCV/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale'       # output dir
+# dataset_dir = os.getcwd()          # input dir (train val and test splitted)
+# dataset_output_dir = 'Holopix50k_burst/grayscale2/output'       # output dir
+dataset_dir = "../training_datasets/Holopix50k_burst/grayscale2"          # input dir (train val and test splitted)
+dataset_output_dir = '../training_datasets/Holopix50k_burst/grayscale2/npy_files_4000'       # output dir
 train_full = False                   # train without a validation
 
 pathlib.Path(dataset_output_dir).mkdir(parents=True,exist_ok=True)
-#if not os.path.isdir(dataset_output_dir):
-#   os.mkdir(dataset_output_dir)
 
 
 
-# train loading
-X_train, X_train_masks, y_train, y_train_masks = load_dataset(base_dir=dataset_dir, part="train", L=L, T=T)
-print(f"Train scenes: {len(X_train)} | Train y shape: {y_train.shape}")
-print(f"Train single scene shape: {X_train[0].shape}")
+# # validation loading
+# X_val, X_val_masks, y_val, y_val_masks = load_dataset(base_dir=dataset_dir, part="val", L=L, T=T)
+# print(f"Val scenes: {len(X_val)} | Val RED y shape: {y_val.shape}")
+
+# # validation registration
+# X_val, X_val_masks = register_dataset(X_val, X_val_masks)
+
+# # if train_full:
+# #     X_train = np.concatenate((X_train, X_val))    
+# #     y_train = np.concatenate((y_train, y_val))
+#     # y_train_masks = np.concatenate((y_train_masks, y_RED_val_masks))
+
+# # # save validation
+# if not train_full:
+#     np.save(os.path.join(dataset_output_dir, 'X_val.npy'), X_val)
+#     np.save(os.path.join(dataset_output_dir, 'y_val.npy'), y_val)
+#     np.save(os.path.join(dataset_output_dir, 'y_val_masks.npy'), y_val_masks)
+
+# print("saved val npy files")
+
+# del X_val
+# del X_val_masks
+# del y_val
+# del y_val_masks
 
 
-# validation loading
-X_val, X_val_masks, y_val, y_val_masks = load_dataset(base_dir=dataset_dir, part="val", L=L, T=T)
-print(f"Val scenes: {len(X_val)} | Val RED y shape: {y_val.shape}")
+
 
 # test loading
 X_test, X_test_masks, y_test, y_test_masks = load_dataset(base_dir=dataset_dir,part="test", L=L, T=T)
 print(f"Test scenes: {len(X_test)} | Test y shape: {y_test.shape}")
-# print(X_train)
-
-
-index = 8
-fig = plt.figure(figsize=(8, 8))
-columns = 5
-rows = 2
-for i in range(T):
-    fig.add_subplot(rows, columns, i+1)
-    plt.imshow(X_train[index][...,i], cmap = 'gray')
-plt.savefig(os.path.join(dataset_output_dir,'sample_preprocessing_before_registration.png'))
-
-
-
-# # 2.0 Dataset Pre-Processing
-
-
-## 2.1 Register dataset
-# train registration
-X_train, X_train_masks = register_dataset(X_train, X_train_masks)
-
-# validation registration
-X_val, X_val_masks = register_dataset(X_val, X_val_masks)
 
 # test registration
 X_test, X_test_masks = register_dataset(X_test, X_test_masks)
-
-
-
-# if train_full:
-#     X_train = np.concatenate((X_train, X_val))    
-#     y_train = np.concatenate((y_train, y_val))
-    # y_train_masks = np.concatenate((y_train_masks, y_RED_val_masks))
-
-
-# # 3.0 Visualize the Pre-Processed Datataset
-
-#-------------
-# Settings
-#-------------
-index = 8
-fig = plt.figure(figsize=(8, 8))
-columns = 5
-rows = 2
-for i in range(T):
-    fig.add_subplot(rows, columns, i+1)
-    plt.imshow(X_train[index][...,i], cmap = 'gray')
-plt.savefig(os.path.join(dataset_output_dir,'sample_preprocessing.png'))
-
-
-
-# save training
-np.save(os.path.join(dataset_output_dir, 'X_train.npy'), X_train)
-np.save(os.path.join(dataset_output_dir, 'y_train.npy'), y_train)
-np.save(os.path.join(dataset_output_dir, 'y_train_masks.npy'), y_train_masks)
-
-# # save validation
-if not train_full:
-    np.save(os.path.join(dataset_output_dir, 'X_val.npy'), X_val)
-    np.save(os.path.join(dataset_output_dir, 'y_val.npy'), y_val)
-    np.save(os.path.join(dataset_output_dir, 'y_val_masks.npy'), y_val_masks)
-
-print("saved train and val npy files")
-
 
 # # save test
 np.save(os.path.join(dataset_output_dir, 'X_test.npy'), X_test)
 np.save(os.path.join(dataset_output_dir, 'y_test.npy'), y_test)
 np.save(os.path.join(dataset_output_dir, 'y_test_masks.npy'), y_test_masks)
 
+print("saved test npy files")
 
+del X_test
+del X_test_masks
+del y_test
+del y_test_masks
+
+
+
+
+# # train loading
+# X_train, X_train_masks, y_train, y_train_masks = load_dataset(base_dir=dataset_dir, part="train", L=L, T=T)
+# print(f"Train scenes: {len(X_train)} | Train y shape: {y_train.shape}")
+# print(f"Train single scene shape: {X_train[0].shape}")
+
+# # # 3.0 Visualize the Pre-Processed Datataset
+# index = 1
+# fig = plt.figure(figsize=(8, 8))
+# columns = 5
+# rows = 2
+# for i in range(T):
+#     fig.add_subplot(rows, columns, i+1)
+#     plt.imshow(X_train[index][...,i], cmap = 'gray')
+# plt.savefig(os.path.join(dataset_output_dir,'sample_preprocessing_before_registration.png'))
+
+# # train registration
+# X_train, X_train_masks = register_dataset(X_train, X_train_masks)
+
+
+# # # 3.0 Visualize the Pre-Processed Datataset
+# fig = plt.figure(figsize=(8, 8))
+# columns = 5
+# rows = 2
+# for i in range(T):
+#     fig.add_subplot(rows, columns, i+1)
+#     plt.imshow(X_train[index][...,i], cmap = 'gray')
+# plt.savefig(os.path.join(dataset_output_dir,'sample_preprocessing.png'))
+
+# # save training
+# np.save(os.path.join(dataset_output_dir, 'X_train.npy'), X_train)
+# np.save(os.path.join(dataset_output_dir, 'y_train.npy'), y_train)
+# np.save(os.path.join(dataset_output_dir, 'y_train_masks.npy'), y_train_masks)
+
+# print("saved train npy files")
+
+# del X_train
+# del X_train_masks
+# del y_train
+# del y_train_masks
