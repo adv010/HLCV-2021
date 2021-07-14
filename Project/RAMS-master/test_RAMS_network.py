@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # # Test RAMS Deep Neural Network on Proba-V Dataset
 # ![proba_v_dataset](media/rams_architecture.png "Logo Title Text 1")
 # 
@@ -38,7 +39,7 @@ from utils.training import Trainer
 from skimage import io
 from skimage.transform import rescale
 from zipfile import ZipFile
-
+import pathlib
 
 # gpu setting (we strongly discouraged to run this notebook without an available GPU)
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -50,8 +51,8 @@ tf.random.set_seed(42)
 #-------------
 # General Settings
 #-------------
-PATH_DATASET = '../training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
-# PATH_DATASET = '/home/adv8/Study/Projects/hlcv2021/Project/training_datasets/Holopix50k_burst/grayscale' # pre-processed dataset path
+#PATH_DATASET = os.getcwd() # pre-processed dataset path
+PATH_DATASET = '../training_datasets/Holopix50k_burst/grayscale/npy_files' # pre-processed dataset path
 name_net = 'RAMS' # name of the network
 LR_SIZE = 128 # pathces dimension
 SCALE = 3 # upscale of the proba-v dataset is 3
@@ -59,10 +60,12 @@ HR_SIZE = LR_SIZE * SCALE # upscale of the dataset is 3
 OVERLAP = 32 # overlap between pathces
 # CLEAN_PATH_PX = 0.85 # percentage of clean pixels to accept a patch
 # band = 'NIR' # choose the band for the training
-checkpoint_dir = 'ckpt' # weights path
-log_dir = 'logs' # tensorboard logs path
-submission_dir = 'submission' # submission dir
-name_zip = 'submission_holopix.zip'
+checkpoint_dir = 'ckpt/RED_RAMS' # weights path
+log_dir = 'logs/RED_RAMS' # tensorboard logs path
+output_dir ='output_test_REDRAMS/ckpt/RED_RAMS'
+pathlib.Path(output_dir).mkdir(parents=True,exist_ok=True)
+#submission_dir = 'submission' # submission dir
+#name_zip = 'submission_holopix.zip'
 
 
 #-------------
@@ -79,9 +82,10 @@ EPOCHS_N = 100 # number of epochs
 
 
 # create submission folder
+'''
 if not os.path.exists(submission_dir):
     os.mkdir(submission_dir)
-
+'''
 
 # load validation 
 X_val = np.load(os.path.join(PATH_DATASET, f'X_val.npy'))
@@ -97,7 +101,7 @@ print('y_val_mask: ', y_val_mask.shape)
 
 # load ESA test set (no ground truth)
 # X_test = np.load(os.path.join(PATH_DATASET, f'X_test.npy'))
-X_test = np.load(os.path.join(PATH_DATASET, f'X_train.npy')) # TODO : Replace with test.npy from Holopix50
+X_test = np.load(os.path.join(PATH_DATASET, f'X_test.npy')) # TODO : Replace with test.npy from Holopix50
 print('X_test: ', X_test.shape)
 
 
@@ -132,9 +136,9 @@ ax[1,0].set_title('Prediction')
 ax[1,1].imshow(y_val[index,:,:,0], cmap = 'gray')
 ax[1,1].set_title('HR')
 # fig.show()
-plt.savefig(os.path.join(submission_dir,'sample_prediction.png'))
+plt.savefig(os.path.join(output_dir,'sample_prediction.png'))
 
-
+'''
 
 # ## 3.2 Compute RAMS cPSNR
 
@@ -264,3 +268,4 @@ savePredictionsPermut(X_preds, submission_dir)
 #         pbar.update(1)
 # zf.close()
 # print('Done!')
+'''

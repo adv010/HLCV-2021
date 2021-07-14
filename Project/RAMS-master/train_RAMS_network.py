@@ -33,7 +33,7 @@ from training import Trainer
 from skimage import io
 from zipfile import ZipFile
 import pathlib
-
+import time
 # gpu settings (we strongly discouraged to run this notebook without an available GPU)
 gpus = tf.config.experimental.list_physical_devices('GPU')
 tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
@@ -41,7 +41,7 @@ tf.config.experimental.set_memory_growth(gpus[0], True)
 
 #print(os.system("ls"))
 
-exp_name = "trial_temp"
+exp_name = "RED_RAMS"
 
 
 #-------------
@@ -70,8 +70,8 @@ CHANNELS = 9 # number of temporal steps
 R = 8 # attention compression
 N = 12 # number of residual feature attention blocks
 lr = 1e-4 # learning rate (Nadam optimizer)
-BATCH_SIZE = 32 # batch size
-EPOCHS_N = 4 # number of epochs
+BATCH_SIZE = 96 # batch size
+EPOCHS_N = 2 # number of epochs
 
 
 # create logs folder
@@ -176,8 +176,9 @@ trainer_rams = Trainer(rams_network, HR_SIZE, name_net,
 #                batch_size=BATCH_SIZE, evaluate_every=400, data_aug = True, epochs=EPOCHS_N,
 #                validation_data=(X_val_patches, [y_val_patches.astype('float32'), y_val_mask_patches]))
 
+start_time=time.time()
 trainer_rams.fit(X_train_patches,
                 [y_train_patches.astype('float32'), y_train_mask_patches], initial_epoch = 0,
                 batch_size=BATCH_SIZE, evaluate_every=100, data_aug = True, epochs=EPOCHS_N,
                 validation_data=(X_val_patches, [y_val_patches.astype('float32'), y_val_mask_patches]))
-
+print("--- %.2f seconds ---" % (time.time() - start_time))

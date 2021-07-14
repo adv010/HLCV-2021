@@ -7,12 +7,12 @@ log                     = rams_train.log
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
 
-transfer_input_files = utils/,../training_datasets/Holopix50k_burst/grayscale2_testOnly/npy_files/ 
+transfer_input_files = utils/,../training_datasets/Holopix50k_burst/grayscale2_subset/npy_files/
 transfer_output_files = logs, ckpt
 
 request_GPUs = 1
 request_CPUs = 1
-request_memory = 2G
+request_memory = 15.8G
 requirements = UidDomain == "cs.uni-saarland.de" 
 +WantGPUHomeMounted = true
 queue 1
