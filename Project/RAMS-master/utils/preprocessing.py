@@ -71,8 +71,9 @@ def load_dataset(base_dir, part, L, T):
 
     for gt in tqdm(HR_imgsets):
         y_im = cv2.imread(gt,cv2.IMREAD_UNCHANGED)[...,None]
+        y_im = y_im.astype(np.uint16) * 256
         y.append(y_im)
-        y_masks.append(np.ones(y_im.shape, dtype="bool"))
+        y_masks.append(np.ones(y_im.shape, dtype="float64"))
         # y_masks.append(cv2.imread(imgset+"/SM.png",cv2.IMREAD_UNCHANGED).astype("bool")[...,None])
 
     # for imgset in tqdm(LR_imgsets):
@@ -93,12 +94,15 @@ def load_dataset(base_dir, part, L, T):
         # QMs = sorted(glob(imgset+"/QM*.png"))
         # T = len(LRs)
         
-        LR = np.empty((128,128,T),dtype="uint8")
-        QM = np.ones((128,128,T),dtype="bool")
+        LR = np.empty((128,128,T),dtype="uint16")
+        QM = np.ones((128,128,T),dtype="float64")
         
         for instance_index,img in enumerate(LRs):
             # print(img)
-            LR[...,instance_index] = cv2.imread(img,cv2.IMREAD_UNCHANGED)
+            read_image = cv2.imread(img,cv2.IMREAD_UNCHANGED)
+            read_image = read_image.astype(np.uint16) * 256
+            # print(read_image.dtype)
+            LR[...,instance_index] = read_image
         
         X.append(LR)
         X_masks.append(QM)
