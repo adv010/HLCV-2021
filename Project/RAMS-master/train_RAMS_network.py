@@ -58,7 +58,7 @@ CLEAN_PATH_PX = 0.85 # percentage of clean pixels to accept a patch
 # band = 'NIR' # choose the band for the training
 checkpoint_dir = f'ckpt/{exp_name}' # weights path
 log_dir = f'logs/{exp_name}' # tensorboard logs path
-submission_dir = 'submission' # submission dir
+submission_dir = f'submission/{exp_name}' # submission dir
 
 
 #-------------
@@ -70,7 +70,7 @@ CHANNELS = 9 # number of temporal steps
 R = 8 # attention compression
 N = 12 # number of residual feature attention blocks
 lr = 1e-4 # learning rate (Nadam optimizer)
-BATCH_SIZE = 96 # batch size
+BATCH_SIZE = 192 # batch size
 EPOCHS_N = 2 # number of epochs
 
 

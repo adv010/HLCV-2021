@@ -77,7 +77,7 @@ CHANNELS = 9 # number of temporal steps
 R = 8 # attention compression
 N = 12 # number of residual feature attention blocks
 lr = 1e-4 # learning rate (Nadam optimizer)
-BATCH_SIZE = 8  #32 # batch size
+BATCH_SIZE = 192  #32 # batch size
 EPOCHS_N = 100 # number of epochs
 
 
