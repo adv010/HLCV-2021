@@ -1,2 +1,2 @@
-# hlcv2021
-HLCV assignments summer semester 2021 
+# Multi-Frame Super Resolution using Neural Networks
+Project submitted for the High Level Computer Vision course @ UniSaarland
